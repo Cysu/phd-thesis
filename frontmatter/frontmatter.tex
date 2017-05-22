@@ -1,0 +1,75 @@
+\pdfbookmark[0]{Ph.D. Thesis: Scalable Human Identification with Deep Learning}{Title}
+
+\title{\usefont{OT1}{cmr}{bx}{n}\selectfont \Huge Scalable Human Identification\\[16pt] with Deep Learning}
+\author{\href{http://xiaotong.me/}{\LARGE{\textbf{XIAO, Tong}}}}
+\degree{1}  % 1 for PhD, 2 for MPhil, 3 for MSc
+\dept{\href{http://www.ee.cuhk.edu.hk/}{Electronic Engineering}}
+\submitdate{\today}
+
+\pagestyle{fancy}
+
+\pagenumbering{Roman}
+
+%\pagenumbering{roman} \pagestyle{plain}
+\titlepge
+%\ifcopyright\copyrightpage\fi
+
+\lhead[\thepage]{\fancyplain{}{\footnotesize\rightmark}}
+\chead[\fancyplain{}{}]{\fancyplain{}{}}
+\rhead[\fancyplain{}{\footnotesize\leftmark}]{\fancyplain{}{\thepage}} \lfoot[]{}
+\cfoot[]{} \rfoot[]{}
+
+%%%%% Front Matters %%%%%
+%%%%%%%%%%%%Blank%%%%%%%%%%%%%%%%%%
+\newpage
+\thispagestyle{empty}%
+\mbox{}
+%\newpage
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\pagenumbering{roman}
+\setcounter{page}{1}
+%\input{frontmatter/ORG}    				% Statement of Originality
+%\input{frontmatter/Dedication}    	% Dedication
+% \input{frontmatter/abstract_cn}   % Traditional Chinense Abstract
+\input{frontmatter/abstract_en}     % English Abstract
+\input{frontmatter/acknowledgments} % Acknowledgements
+\input{frontmatter/publications}    % List of Publications
+\input{frontmatter/nomenclature}    % Nomenclature
+%\input{frontmatter/Demos}   				% Demos and Data
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%% Contents %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{onehalfspace}
+
+\newpage
+\tableofcontents\addcontentsline{toc}{chapter}{Contents}\newpage
+\iffigures\listoffigures\addcontentsline{toc}{chapter}{List of Figures}\newpage\fi
+
+% Remark this line if you do not have table
+\iftables\listoftables\addcontentsline{toc}{chapter}{List of Tables}\newpage\fi
+
+\end{onehalfspace}
+
+\newpage
+\thispagestyle{empty}%
+\mbox{}
+\newpage
+
+\pagenumbering{arabic}
+%\pagestyle{headings} \setcounter{page}{1}
+
+%%% Customisation of the header and footer for the chapters
+%------------------------------
+%\renewcommand{\subsectionmark}[1]{\markright{ \footnotesize Sec. \thesubsection.\ \ #1}}
+%\renewcommand{\sectionmark}[1]{\markright{ \footnotesize Sec. \thesection.\ \ #1}}
+%\renewcommand{\chaptermark}[1]{\markboth{ \footnotesize \uppercase{Chap. \thechapter.\ \ #1}}{}}
+\renewcommand{\subsectionmark}[1]{\markright{\footnotesize \uppercase{\S} \thesubsection.\ \ #1}}
+\renewcommand{\sectionmark}[1]{\markright{\footnotesize \uppercase{\S} \thesection.\ \ #1}}
+\renewcommand{\chaptermark}[1]{\markboth{\footnotesize \uppercase{Chap. \thechapter.\ \ #1}}{}}
+
+\lhead[\thepage]{\fancyplain{}{\rightmark}}
+\chead[\fancyplain{}{}]{\fancyplain{}{}}
+\rhead[\fancyplain{}{\leftmark}]{\fancyplain{}{\thepage}} \lfoot[]{}
+\cfoot[]{} \rfoot[]{}
+%------------------------------

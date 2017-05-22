@@ -1,0 +1,47 @@
+% LaTeX thesis template
+
+% LaTeX 2e
+\documentclass[a4paper,11pt,twoside]{report}
+%\documentclass[a4paper,11pt,oneside]{report}
+
+\input{preamble/preamble.tex}
+
+\begin{document}
+
+\input{frontmatter/frontmatter.tex}
+
+%%%%% Main Body %%%%%
+% Chapters
+\input{mainmatter/introduction.tex}
+\input{mainmatter/conclusion.tex}
+%\clearpage
+\appendix
+%\input{Appendix/APX}    % Appendix A - F
+
+\begin{singlespace}
+% Bibliography
+\clearpage \beforebibliography
+
+\lhead[\thepage]{\fancyplain{}{\footnotesize \rightmark}}
+\chead[\fancyplain{}{}]{\fancyplain{}{}} \rhead[\fancyplain{}{
+\footnotesize\leftmark}]{\fancyplain{}{\thepage}} \lfoot[]{} \cfoot[]{} \rfoot[]{}
+
+\bibliographystyle{IEEEtran}
+%\bibliographystyle{phaip}
+%\bibliographystyle{kluwer}
+%\bibliographystyle{apalike}
+%\bibliographystyle{apacite}
+%\bibliographystyle{abbrv}
+%\bibliographystyle{IEEEannot}
+%\pagestyle{plain}
+
+\small \addcontentsline{toc}{chapter}{Bibliography}
+\bibliography{backmatter/references}
+
+\end{singlespace}
+
+%% Appendix
+%\clearpage
+%\appendix
+
+\end{document}
