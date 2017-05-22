@@ -1,24 +1,18 @@
 \usepackage{url}
 \usepackage{graphicx}
-%\usepackage{color}
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{amsthm}
 \usepackage{float,multicol}
 \usepackage{subcaption}
-%\usepackage{fancyheadings}
 \usepackage{fancyhdr}
-% \usepackage{subfigure}
 \usepackage{comment}
 \usepackage{CJK}
 \usepackage{sectsty}
-\usepackage{ifpdf}
 \usepackage{xspace}
 
 \usepackage{preamble/thesis}
 
-%\DeclareFontShape{OT1}{cmr}{bx}{n}{cmrbx}{10}
-%\DeclareTextCommand{\chapfont}{OT1}{cmr}[m][n]
 \allsectionsfont{\usefont{OT1}{cmr}{bx}{n}\selectfont}
 \chapterfont{\usefont{OT1}{cmr}{bx}{n}\selectfont \LARGE}
 \sectionfont{\usefont{OT1}{cmr}{bx}{n}\selectfont \large}
@@ -32,12 +26,7 @@
 \renewcommand{\rmdefault}{cmr}
 
 \usepackage{setspace}
-
-\ifpdf
-  \usepackage[pdftex=true,breaklinks=true]{hyperref}
-\else
-  \usepackage[dvipdfm=true,breaklinks=true]{hyperref}
-\fi
+\usepackage[pdftex=true,breaklinks=true]{hyperref}
 
 \hypersetup{
 pdftitle={Scalable Human Identification with Deep Learning}, pdfauthor={Tong Xiao},
