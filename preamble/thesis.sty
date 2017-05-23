@@ -62,7 +62,7 @@
     \fi
     \chapter*{\contentsname
         \@mkboth{%
-           \sf \uppercase{\contentsname}}{\sf \uppercase{\contentsname}}}%
+          \uppercase{\contentsname}}{\uppercase{\contentsname}}}%
     \@starttoc{toc}%
     \if@restonecol\twocolumn\fi
     }
@@ -74,8 +74,8 @@
       \@restonecolfalse
     \fi
     \chapter*{\listfigurename}%
-      \@mkboth{\sf\uppercase{\listfigurename}}%
-              {\sf\uppercase{\listfigurename}}%
+      \@mkboth{\uppercase{\listfigurename}}%
+              {\uppercase{\listfigurename}}%
     \@starttoc{lof}%
     \if@restonecol\twocolumn\fi
     }
@@ -87,8 +87,8 @@
     \fi
     \chapter*{\listtablename}%
       \@mkboth{%
-          \sf\uppercase{\listtablename}}%
-         {\sf\uppercase{\listtablename}}%
+          \uppercase{\listtablename}}%
+         {\uppercase{\listtablename}}%
     \@starttoc{lot}%
     \if@restonecol\twocolumn\fi
     }
@@ -117,7 +117,7 @@
  \vspace*{30pt}
  {%\parindent 0pt \raggedright
   \ifnum \c@secnumdepth >\m@ne
-  	\Large {\flushright {\bf \sf \myfont \@chapapp{} \thechapter}}
+  	\Large {\flushright {\bf \@chapapp{} \thechapter}}
    	\par
   	\vskip 5pt
   	\hrule \vskip 2pt \hrule % added by Jian Yao

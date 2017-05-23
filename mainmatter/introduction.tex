@@ -1,2 +1,38 @@
 \chapter{Introduction}
 \label{ch:introduction}
+
+% Motivation
+Imagine that in the near future, people are able to travel with self-driving cars, which recognize who you are, automatically navigating to your destination, and pay attention to other cars and pedestrians along the way. Vision, as the most important perception for both human beings and artificial intelligence, is the key to interpret the surrounding environment and help finish all these tasks correctly.
+
+% Applications
+Among the broad spectrum of topics, human identification, which aims at finding a person of interest from a gallery of digital photos or videos, is one of the most fundamental problems in computer vision. Human identification is closely related to real applications, for example, it enables smart phones to group together photos that belong to the same person, it helps home security systems recognize housebreakers, and it also assists police to locate and track criminals from massive surveillance videos.
+
+% Challenges
+Given a pair of person photos, although human can easily tell whether they are of the same identity or not, this task is extremely difficult to computers. Human can instantly figure out high-level attributes, such as gender and age, and then gradually compare their finer details, for example, the clothes colors, materials, styles, and the accessories. However, what computers percept from a digital photo is just an array of integers representing the color illumination at each pixel. Computers need to extract patterns from these numbers and understand their high-level semantic meanings, which are also called \emph{features} or \emph{feature representations} in computer vision. The challenge here is to define which features are useful for human identification, and what are their unique patterns.
+
+% Deep representation learning
+Thanks to the rapid development of deep learning algorithms, researchers have proposed many effective approaches to tackle these challenges. Different from traditional methods [SIFT, HOG, SURF, SDALF, LOMO] that manually define a fixed set of rules to extract features, deep learning methods [AlexNet, VGGNet, GoogLeNet, ResNet] automatically learn from data a parameterized function that directly transforms an input image into features. Instead of trying to define good features, deep learning solves the challenge by optimizing the feature extraction function for an objective in a data-driven manner. We have witnessed rapid progress of teaching computers to classify an image into 1000 categories---the accuracy increases from $71.8\%$ to $96.4\%$ in five years! The success of deep learning methods in image classification have laid a great foundation for solving our human identification problem.
+
+% More challenges specific to human identification
+%   hard to get supervised data
+%   data are from multiple domains
+%   lacks a uniform framework for practical applications
+However, human identification poses more challenges than image classification. First, it lacks enough supervised data for learning good features for human. Image classification often relies on large-scale datasets [ImageNet] with manual annotations. But most of their images consist of animals, plants, and man-made objects, which may not be relevant to human identification. Second, most of the existing datasets for human identification are collected by different research institutes. Their data each has its own biases in human races, clothing styles, and camera settings, which requires the designed model to be able to handle such domain discrepancies. Third, image classification often assumes that a major object is in the center of an image. But practical human identification, especially in surveillance applications, often requires to find a target person in whole scene images. It currently lacks a uniform framework for such practical applications.
+(Need to address the "Scalable" in title).
+
+% Moreover, since the two photos could be captured from different camera views and the two people could have various poses, their arrays of integers often significantly misaligned. It thus raises another challenge of how to correctly compare the semantic meanings between two images.
+
+% Contributions and chapters
+In this dissertation we address these three challenges respectively, in order to make human identification methods scalable to large-scale real-world applications.
+
+In Chapter 2 we cover some basic concepts about deep learning, including the mathematical formulation, backpropagation, learning objectives, and popular neural network structures for computer vision.
+
+In Chapter 3 we introduce the background for human identification, reviewing some related work, and develop a road map for the research in this field.
+
+In Chapter 4 we address the first challenge by leveraging the need of supervised data to noisy-labeled semi-supervised data. We propose a probabilistic model to describe how the label noise is generated for web images. The proposed probabilistic model is then integrated into a deep neural network. We develop an end-to-end optimization algorithm for the network to learn features directly from noisy-labeled images.
+
+In Chapter 5 we tackle the domain discrepancy problem raised above. A joint single task learning framework is developed and a domain guided dropout technique is proposed. Together they enable the learning of a single deep neural network with data from multiple biased domains.
+
+In Chapter 6 we develop a new framework for finding a target person in whole scene images. It uses a \emph{convolutional neural network (CNN)} that jointly detects pedestrians inside an image and extracts their identity features. A novel loss function is proposed to train the CNN effectively without whistles and bells.
+
+Finally, we conclude this dissertation in Chapter 7.
