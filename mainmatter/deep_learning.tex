@@ -28,7 +28,7 @@ Section~\ref{sec:dl-feedforward} will detail on how to parameterize $f_\theta(\c
 
 \section{Feedforward Neural Network} % (fold)
 \label{sec:dl-feedforward}
-A typical feedforward neural network is a sequence of linear and non-linear operators, as depicted in Figure~\ref{fig:dl-feedforward}. These linear and non-linear operators are often encapsulated into \emph{layers} when designing neural networks. The output of the previous layer is served as the input of the next layer. Below we will introduce some commonly used operators and variants of network architectures.
+A typical feedforward neural network is a sequence of linear and non-linear operators, as depicted in Figure~\ref{fig:dl-feedforward}. These linear and non-linear operators are often encapsulated into \emph{layers} when designing neural networks. The output of the previous layer is served as the input of the next layer. Below we will introduce some commonly used operators.
 \begin{figure}[t]
 \begin{center}
 \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
@@ -44,9 +44,9 @@ One of the basic linear operators is matrix-vector multiplication, namely the \e
 \begin{equation}
   y=Wx+b,
 \end{equation}
-where $x\in\mathbb{R}^n$ is an input vector, $W\in\mathbb{R}^{m\times n}$ is a parameter dubbed \emph{weight} matrix, and $b\in\mathbb{R}^n$ is a parameter dubbed \emph{bias} vector. FC layers are often used as linear classifiers at then end of a neural network.
+where $x\in\mathbb{R}^d$ is an input vector, $W\in\mathbb{R}^{m\times d}$ is a parameter dubbed \emph{weight} matrix, and $b\in\mathbb{R}^m$ is a parameter dubbed \emph{bias} vector. FC layers are often used as linear classifiers at then end of a neural network.
 
-While each output dimension $y_i$, also called \emph{unit}, is computed from all of the input dimensions, sometimes people wish to contrain the size of this input range, which forms another linear operator --- \emph{convolution}. Take as an example of 3-D input image $x\in\mathbb{R}^{C\times H\times W}$ with $C$ channels and spatial size $H\times W$, a convolution layer is parameterized by $M$ convolution kernels each has a weight $w\in\mathbb{R}^{C\times (2K+1)\times (2K+1)}$ and a bias $b$, where $2K+1$ is called the kernel size (here we assume the kernel size is odd for simplicity). Applying each convolution kernel $w$ to $x$ results in an output \emph{feature map} $y\in\mathbb{R}^{H\times W}$, where
+While each output dimension $y_i$, also called \emph{unit}, is computed from all of the input dimensions, sometimes people wish to constrain the size of this input range, which forms another linear operator --- \emph{convolution}. Take as an example of 3-D input image $x\in\mathbb{R}^{C\times H\times W}$ with $C$ channels and spatial size $H\times W$, a convolution layer is parameterized by $M$ convolution kernels each has a weight $w\in\mathbb{R}^{C\times (2K+1)\times (2K+1)}$ and a bias $b$, where $2K+1$ is called the kernel size (here we assume the kernel size is odd for simplicity). Applying each convolution kernel $w$ to $x$ results in an output \emph{feature map} $y\in\mathbb{R}^{H\times W}$, where
 \begin{equation}
   y(i,j) = b + \sum_{c=1}^C \sum_{p=-K}^K \sum_{q=-K}^K w(c,p,q) x(c,i+p,j+q).
 \end{equation}
@@ -65,18 +65,57 @@ This process is demonstrated in Figure~\ref{fig:dl-conv}. Each output unit can b
 
 \subsection{Non-linear Operators} % (fold)
 \label{sub:dl-nonlinops}
+Performing linear operations consecutively is useless, since they can be replaced by a single linear operation. For example, applying two FC layers
+\begin{equation}
+  W_2(W_1x+b_1)+b_2 = (W_2W_1)x +(W_2b_1+b_2)
+\end{equation}
+is equivalent to a single FC layer with parameters $(W_2W_1, W_2b_1+b_2)$. In order to enrich the function family that neural networks can represent, people often insert non-linear operators between every two linear operators.
+
+One of the most widely used non-linear operators is \emph{rectified linear unit (ReLU)}, mathematically it is a piece-wise linear transformation applying to each input unit independently
+\begin{equation}
+  \mathrm{ReLU}(x) = \begin{cases}
+    x & \text{when }x \ge 0,\\
+    0 & \text{when }x < 0.
+  \end{cases}
+\end{equation}
+
+Another common non-linear operator is \emph{softmax}, which maps a vector $x\in\mathbb{R}^d$ to a multinomial distribution
+\begin{equation}
+  y_i=\mathrm{softmax}(x)_i=\frac{\exp(x_i)}{\sum_{j=1}^d \exp(x_j)}.
+\end{equation}
+Note that $y_i > 0$ and $\sum_{i=1}^d y_i = 1$. It is often used at the end of a neural network for image classification, which casts the network output to a categorical distribution over predefined classes.
 
 % subsection dl-nonlinops (end)
 
 \subsection{Normalizations} % (fold)
 \label{sub:dl-normalizations}
+Normalizations form another important bunch of operators. They keep the output of each layer in a certain range of values, and ease the parameter optimization process. One of the most effective normalization operators is \emph{Batch Normalization (BN)}~\cite{ioffe2015batch}. Given $N$ input samples each denoted by a vector $x^{(i)}\in\mathbb{R}^d, i=1,\dots,N$, BN computes the mean and variance of each dimension independently across all the samples
+\begin{align}
+  \mu_j &= \frac{1}{N} \sum_{i=1}^N x_j^{(i)},\\
+  \sigma_j^2 &= \frac{1}{N} \sum_{i=1}^N (x_j^{(i)} - \mu_j)^2.
+\end{align}
+Then it normalizes the input to be zero mean and unit variance by
+\begin{equation}
+  \hat{x}_j^{(i)} = \frac{x_j^{(i)} - \mu_j}{\sqrt{\sigma_j^2 + \epsilon}},
+\end{equation}
+where $\epsilon$ is a small positive number that avoids zero division. At last, BN applies a linear transformation to $\hat{x}$ by
+\begin{equation}
+  y_j^{(i)} = \alpha_j \hat{x}_j^{(i)} + \beta_j,
+\end{equation}
+where $\alpha,\beta\in\mathbb{R}^d$ are learnable parameters.
+
 
 % subsection dl-normalizations (end)
 
-\subsection{Popular Architectures} % (fold)
-\label{sub:dl-poparch}
+\subsection{Residual Module} % (fold)
+\label{sub:dl-residual}
+Many popular \emph{convolutional neural network (CNNs)} have been proposed~\cite{krizhevsky2012imagenet,simonyan2014very,szegedy2014going} to tackle the image classification problem. One simple yet effective variant worth mention here is the residual module~\cite{he2015deep}. The output of this module is
+\begin{equation}
+  y = f_\theta(x) + x,
+\end{equation}
+where the parameterized function $f_\theta(\cdot)$ learns some additive residual to the input. This residual module can at least keep the input unchanged, thus it will not be worse when stacking more such layers. We refer the readers to~\cite{he2015deep,he2016identity} for more detailed benefits.
 
-% subsection dl-poparch (end)
+% subsection dl-residual (end)
 
 
 % section dl-feedforward (end)
