@@ -1,2 +1,92 @@
 \chapter{Deep Learning Basics}
 \label{ch:deep-learning-basics}
+
+This chapter introduces some basic concepts about deep learning. Deep learning covers a large spectrum of applications. Categorized by the type of input data, deep learning models can be roughly classified into two classes --- \emph{feedforward neural network} for non-sequential data, such as static images, and \emph{recurrent neural network} for sequential data, such as video, audio, or text in natural language. Deep learning also belongs to general machine learning, therefore multiple frameworks have been developed to adopt different levels of supervisory signals, including supervised, semi-supervised, unsupervised, and reinforcement learning. In this chapter we focus on the supervised learning of feedforward neural networks, which is also mainly used in this dissertation.
+
+For supervised learning, a training dataset can be denoted by $\mathcal{D}_{train}=\left\{(x^{(i)}, t^{(i)})\right\}_N$, where $x$ and $t$ are input and target tensor, respectively, and $N$ is the number of samples. A feedforward neural network is a parameterized function $f_\theta(x)$ that maps an input $x$ to some output tensor $y$. The learning objective is to find the best parameter $\theta^*$ that minimizes a predefined loss function $L(y,t)$, formally
+\begin{equation}
+  \theta^* = \argmin_\theta \frac{1}{N} \sum_{i=1}^N L\left(f_\theta(x^{(i)}), t^{(i)}\right).
+\end{equation}
+
+Section~\ref{sec:dl-feedforward} will detail on how to parameterize $f_\theta(\cdot)$. Section~\ref{sec:dl-loss} will introduce several commonly used loss functions $L(\cdot,\cdot)$. The optimization process of finding $\theta^*$ will be elaborated in Section~\ref{sec:dl-bp}.
+
+% Feedforward Neural Network
+%   Linear Operators: FC, Conv
+%   Non-linear Operators: ReLU, Softmax
+%   Normalizations: Batch normalization
+%   Popular networks
+
+
+% Loss functions
+%   Categorical
+%   Regression
+
+% Backpropagation
+%   Chain Rule for DAG
+%   Jacobian for stacked layers
+%   Stochastic Gradient Descent
+
+\section{Feedforward Neural Network} % (fold)
+\label{sec:dl-feedforward}
+A typical feedforward neural network is a sequence of linear and non-linear operators, as depicted in Figure~\ref{fig:dl-feedforward}. These linear and non-linear operators are often encapsulated into \emph{layers} when designing neural networks. The output of the previous layer is served as the input of the next layer. Below we will introduce some commonly used operators and variants of network architectures.
+\begin{figure}[t]
+\begin{center}
+\fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+%\includegraphics[width=0.8\linewidth]{egfigure.eps}
+\caption{A typical feedforward neural network consisting of sequential linear and non-linear operators}
+\label{fig:dl-feedforward}
+\end{center}
+\end{figure}
+
+\subsection{Linear Operators} % (fold)
+\label{sub:dl-linops}
+One of the basic linear operators is matrix-vector multiplication, namely the \emph{fully connected (FC)} layer in neural network. Formally, the output of the FC layer is
+\begin{equation}
+  y=Wx+b,
+\end{equation}
+where $x\in\mathbb{R}^n$ is an input vector, $W\in\mathbb{R}^{m\times n}$ is a parameter dubbed \emph{weight} matrix, and $b\in\mathbb{R}^n$ is a parameter dubbed \emph{bias} vector. FC layers are often used as linear classifiers at then end of a neural network.
+
+While each output dimension $y_i$, also called \emph{unit}, is computed from all of the input dimensions, sometimes people wish to contrain the size of this input range, which forms another linear operator --- \emph{convolution}. Take as an example of 3-D input image $x\in\mathbb{R}^{C\times H\times W}$ with $C$ channels and spatial size $H\times W$, a convolution layer is parameterized by $M$ convolution kernels each has a weight $w\in\mathbb{R}^{C\times (2K+1)\times (2K+1)}$ and a bias $b$, where $2K+1$ is called the kernel size (here we assume the kernel size is odd for simplicity). Applying each convolution kernel $w$ to $x$ results in an output \emph{feature map} $y\in\mathbb{R}^{H\times W}$, where
+\begin{equation}
+  y(i,j) = b + \sum_{c=1}^C \sum_{p=-K}^K \sum_{q=-K}^K w(c,p,q) x(c,i+p,j+q).
+\end{equation}
+
+This process is demonstrated in Figure~\ref{fig:dl-conv}. Each output unit can be seen as the inner-product between the kernel weight and the input content inside a local region, which represents their matching similarities. The convolution kernel is shared across all the output units on the feature map. Thus it serves as a pattern \emph{detector} that finds certain pattern on the input image.
+\begin{figure}[t]
+\begin{center}
+\fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+%\includegraphics[width=0.8\linewidth]{egfigure.eps}
+\caption{Convolution operator on a 3-D input image}
+\label{fig:dl-conv}
+\end{center}
+\end{figure}
+
+% subsection dl-linops (end)
+
+\subsection{Non-linear Operators} % (fold)
+\label{sub:dl-nonlinops}
+
+% subsection dl-nonlinops (end)
+
+\subsection{Normalizations} % (fold)
+\label{sub:dl-normalizations}
+
+% subsection dl-normalizations (end)
+
+\subsection{Popular Architectures} % (fold)
+\label{sub:dl-poparch}
+
+% subsection dl-poparch (end)
+
+
+% section dl-feedforward (end)
+
+\section{Loss Functions} % (fold)
+\label{sec:dl-loss}
+
+% section dl-loss (end)
+
+\section{Backpropagation} % (fold)
+\label{sec:dl-bp}
+
+% section dl-bp (end)
