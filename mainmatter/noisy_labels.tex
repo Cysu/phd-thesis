@@ -215,7 +215,7 @@ The above analysis leads to a simple algorithm. We enumerate $k^*$ from 1 to $L$
 
 \begin{figure*}
 \begin{center}
-\includegraphics[width=0.85\linewidth]{figures/noisy_labels/diagram.pdf}
+\includegraphics[width=1.0\linewidth]{figures/noisy_labels/diagram.pdf}
 \end{center}
 \caption{System diagram of our method. Two CNNs are used to predict the class label $p(\vec{y}|\vec{x})$ and the noise type $p(\vec{z}|\vec{x})$, respectively. The label noise model layer uses both these predictions and the given noisy label to estimate a posterior distribution of the true label, which is then used to supervise the training of CNNs. Data with clean labels are also mixed in to prevent the models from drifting away.}
 \label{fig:framework}
@@ -243,7 +243,7 @@ The confusion matrix between clean and noisy labels is presented in Figure~\ref{
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=0.9\linewidth]{figures/noisy_labels/cm_strong_weak_labels.pdf}
+\includegraphics[width=1.0\linewidth]{figures/noisy_labels/cm_strong_weak_labels.pdf}
 \end{center}
 \caption{Confusion matrix between clean and noisy labels. We hide extremely small grid numbers for better demonstration. Frequency of each true label is listed at the top of each column. The overall accuracy is $61.54\%$, which indicates that the noisy labels are not reliable.}
 \label{fig:cm_strong_weak}
@@ -265,13 +265,13 @@ In general, we use a mini-batch size of $256$. The learning rate is initialized 
 \# & Method & Training Data & Initialization & Test Accuracy\\
 \hline\hline
 1 & AlexNet & $\mathcal{D}_c$ & random & 64.54\% \\
-2 & AlexNet & $\mathcal{D}_c$ & ImageNet pretrained & 72.63\% \\
-3 & AlexNet & upsampled $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ as ground truths & random & 74.03\% \\
-4 & AlexNet & upsampled $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ as ground truths & ImaegNet pretrained & 75.13\% \\
-5 & AlexNet & upsampled $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ as ground truths & model \#2 & 75.30\% \\
-6 & Pseudo-Label\cite{lee2013pseudo} & upsampled $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ as unlabeled & model \#2 & 73.04\% \\
-7 & Bottom-Up~\cite{sukhbaatar2014learning} & upsampled $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ & model \#2 & 76.22\% \\
-8 & Ours & upsampled $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ & model \#2 & \textbf{78.24\%} \\
+2 & AlexNet & $\mathcal{D}_c$ & ImageNet & 72.63\% \\
+3 & AlexNet & $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ as GT & random & 74.03\% \\
+4 & AlexNet & $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ as GT & ImaegNet & 75.13\% \\
+5 & AlexNet & $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ as GT & model \#2 & 75.30\% \\
+6 & Pseudo-Label\cite{lee2013pseudo} & $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ as unlabeled & model \#2 & 73.04\% \\
+7 & Bottom-Up~\cite{sukhbaatar2014learning} & $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ & model \#2 & 76.22\% \\
+8 & Ours & $\mathcal{D}_c$ and $\mathcal{D}_{\eta}$ & model \#2 & \textbf{78.24\%} \\
 \hline
 \end{tabular}
 \end{center}
@@ -281,7 +281,7 @@ In general, we use a mini-batch size of $256$. The learning rate is initialized 
 
 \begin{figure*}
 \begin{center}
-\includegraphics[width=0.95\linewidth]{figures/noisy_labels/model_output.pdf}
+\includegraphics[width=1.0\linewidth]{figures/noisy_labels/model_output.pdf}
 \caption{Examples of handling noisy labels. The information layout for each block is illustrated on the top-left. $p(\vec{y}|\vec{x})$ and $p(\vec{z}|\vec{x})$ are predictions of the true label and noise type based on image content. After observing the noisy label, our model infers the posterior distributions $p(\vec{y}|\vec{\tilde{y}},\vec{x})$ and $p(\vec{z}|\vec{\tilde{y}},\vec{x})$, then replaces the $\vec{y}$ and $\vec{z}$ with them as supervisions to the CNNs.}
 \label{fig:model_output}
 \end{center}

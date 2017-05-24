@@ -46,7 +46,7 @@ Concurrent with our prior arXiv submission, Zheng~\etal~\cite{zheng2016person} a
 
 \begin{figure*}[t]
 \begin{center}
-\includegraphics[width=0.9\linewidth]{figures/person_search/framework.pdf}
+\includegraphics[width=1.0\linewidth]{figures/person_search/framework.pdf}
 \end{center}
 \caption{Our proposed framework. Pedestrian proposal net generates bounding boxes of candidate people, which are fed into an identification net for feature extraction. We project the features to a L2-normalized $256$-d subspace, and train it with a proposed Online Instance Matching loss. Both the pedestrian proposal net and the identification net share the underlying convolutional feature maps.}
 \label{fig:framework}
@@ -70,7 +70,7 @@ To find the target person among all these proposals, we build an identification 
 
 \begin{figure*}[t]
 \begin{center}
-\includegraphics[width=0.9\linewidth]{figures/person_search/oim.pdf}
+\includegraphics[width=1.0\linewidth]{figures/person_search/oim.pdf}
 \end{center}
 \caption{Online Instance Matching. The left part shows the labeled (blue) and unlabeled (orange) identity proposals in an image. We maintain a lookup table (LUT) and a circular queue (CQ) to store the features. When forward, each labeled identity is matched with all the stored features. When backward, we update LUT according to the id, pushing new features to CQ, and pop out-of-date ones. Note that both data structures are external buffer, rather than the parameters of the CNN.}
 \label{fig:oim}
@@ -118,7 +118,6 @@ We collect and annotate a large-scale CUHK-SYSU Person Search Dataset to evaluat
 \label{sub:statistics}
 After collecting all the $18,184$ images, we first densely annotate all the $96,143$ pedestrians bounding boxes in these scenes, and then associate the person that appears across different images, resulting in $8,432$ labeled identities. The statistics of two data sources are listed in Table~\ref{tab:dataset-stats}. We did not annotate those people who appear with half bodies or abnormal poses such as sitting or squatting. Moreover, people who change clothes and decorations in different video frames are not associated in our dataset, since person search problem requires to recognize identities mainly according to their clothes and body shapes rather than faces. We ensure that the background pedestrians do not contain labeled identities, and thus they can be safely served as negative samples for identification. Note that we also ignore the background pedestrians whose heights are smaller than $50$ pixels, as they would be hard to recognize even for human labelers. The height distributions of labeled and unlabeled identities are demonstrated in Figure~\ref{fig:height-distr}. It can be seen that our dataset has rich variations of pedestrian scales.
 \begin{table}
-\small
 \begin{center}
 \begin{tabular}{lrrr}
 \hline\noalign{\smallskip}
@@ -142,7 +141,7 @@ Overall & 18,184 & 96,143 & 8,432 \\
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=0.75\linewidth]{figures/person_search/height-distr.pdf}
+\includegraphics[width=1.0\linewidth]{figures/person_search/height-distr.pdf}
 \end{center}
 \vspace{-3ex}
 \caption{The height distributions of labeled and unlabeled identities in our dataset.}
@@ -172,7 +171,7 @@ We implement our framework based on Caffe~\cite{jia2014caffe,wang2016temporal} a
 We compare our framework with conventional methods that break down the problem into two separate tasks---pedestrian detection and person re-identification. Three pedestrian detection and five person re-id methods are used in our experiments, resulting in $15$ baseline combinations. For pedestrian detection, we directly use the off-the-shelf deep learning CCF~\cite{yang2015convolutional} detector, as well as two other detectors specifically fine-tuned on our dataset. One is the ACF~\cite{dollar2014fast}, and the other is Faster-RCNN (CNN)~\cite{ren2015faster} with ResNet-50, which is equivalent to our framework but without the identification task. The recall-precision curve of each detector on our dataset are plotted in Figure~\ref{fig:detector-pr-curves}. We also use the ground truth (GT) bounding boxes as the results of a perfect detector.
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=0.75\linewidth]{figures/person_search/detector-pr-curves.pdf}
+\includegraphics[width=1.0\linewidth]{figures/person_search/detector-pr-curves.pdf}
 \end{center}
 \vspace{-4ex}
 \caption{Recall-Precision curves of different detectors. APs are listed in the legend.}
@@ -191,7 +190,6 @@ We first compare our proposed person search framework (with or without using unl
 
 \setlength{\tabcolsep}{8pt}
 \begin{table}
-\small
 \begin{center}
 \begin{tabular}{lrrrr}
 \hline\noalign{\smallskip}
@@ -239,7 +237,7 @@ Another interesting phenomenon is that although IDNet and LOMO+XQDA have similar
 \label{sub:effectiveness_of_online_instance_matching}
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=0.8\linewidth]{figures/person_search/oim-vs-softmax.pdf}
+\includegraphics[width=1.0\linewidth]{figures/person_search/oim-vs-softmax.pdf}
 \end{center}
 \vspace{-3ex}
 \caption{Comparisons between using the proposed Online Instance Matching (OIM) and Softmax loss (with and without pretraining the Softmax classifier) in our framework. The final accuracies and mAPs are shown in the legends.}
@@ -253,7 +251,6 @@ On the contrary, the proposed OIM loss starts with a low training accuracy but c
 We further evaluate the impact of OIM loss on the standard person re-identification task. We train two different base CNNs, Inception~\cite{xiao2016learning} (from scratch) and ResNet-50~\cite{he2015deep} (ImageNet pretrained), with either Softmax loss or OIM loss, on three large-scale person re-id datasets, CUHK03~\cite{li2014deepreid}, Market1501~\cite{zheng2015scalable}, and Duke~\cite{zheng2017unlabeled,ristani2016MTMC}. Following their own protocols, we evaluate the CMC top-1 accuracy of using different loss functions, as listed in Table~\ref{tab:oim-reid}. OIM loss consistently outperforms Softmax loss, regardless of which base CNN is used. We refer readers to Open-ReID\footnote{\url{https://github.com/Cysu/open-reid}} benchmarks for more details.
 \setlength{\tabcolsep}{8pt}
 \begin{table}
-\small
 \begin{center}
 \begin{tabular}{llccc}
 \hline\noalign{\smallskip}
@@ -277,19 +274,17 @@ ResNet-50 & OIM & \textbf{77.5} & \textbf{82.1} & \textbf{68.1} \\
 
 \begin{figure*}[t]
 \begin{center}
-\begin{subfigure}[t]{0.32\linewidth}
+\begin{subfigure}[t]{0.6\linewidth}
   \includegraphics[width=\linewidth]{figures/person_search/subsampling.pdf}
   \caption{Sub-sampling size for the OIM loss}
   \label{fig:subsampling}
 \end{subfigure}
-~
-\begin{subfigure}[t]{0.32\linewidth}
+\begin{subfigure}[t]{0.6\linewidth}
   \includegraphics[width=\linewidth]{figures/person_search/factor-recall.pdf}
   \caption{Detection (LOMO+XQDA) recall}
   \label{fig:factor-recall}
 \end{subfigure}
-~
-\begin{subfigure}[t]{0.32\linewidth}
+\begin{subfigure}[t]{0.6\linewidth}
   \includegraphics[width=\linewidth]{figures/person_search/factor-gallery-size.pdf}
   \caption{Test gallery size}
   \label{fig:factor-gallery-size}
@@ -302,7 +297,6 @@ ResNet-50 & OIM & \textbf{77.5} & \textbf{82.1} & \textbf{68.1} \\
 
 \setlength{\tabcolsep}{8pt}
 \begin{table}
-\small
 \begin{center}
 \begin{tabular}{lrrrrr}
 \hline\noalign{\smallskip}

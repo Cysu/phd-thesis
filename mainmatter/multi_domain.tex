@@ -48,7 +48,7 @@ We target the person re-identification (Re-ID) problem in this work, which is ve
 
 \begin{figure*}[t]
 \begin{center}
-\includegraphics[width=0.9\linewidth]{figures/multi_domain/overview.pdf}
+\includegraphics[width=1.0\linewidth]{figures/multi_domain/overview.pdf}
 \end{center}
 \caption{Overview of our pipeline. For the person re-identification problem, we first train a CNN jointly on all six domains. Then we analyze the effectiveness of each neuron on each domain. For example, some may capture the luggages that only appear in domain $A$, while some others may capture the red clothes shared across different domains. We propose a Domain Guided Dropout algorithm to discard useless neurons for each domain during the training process, which drives the CNN to learn better feature representations on all the domains simultaneously.}
 \label{fig:overview}
@@ -82,14 +82,15 @@ Compared with the multi-task formulation, this single-task learning scheme force
 Since pedestrian images are usually quite small and are not of square-shapes, it is not appropriate to directly use the ImageNet pretrained CNN models, which are trained with object images of high resolution and abundant details. Thus we propose to design a network structure that well fits our problem scale. Inspired by~\cite{ioffe2015batch,simonyan2014very}, we build a CNN with three preceding $3\times 3$ convolutional layers followed by six Inception modules and two fully connected layers. Detailed structures are listed in Table~\ref{tab:cnn_structure}. The Batch Normalization (BN) layers are employed before each ReLU layer, which accelerate the convergence process and avoid manually tweaking the initialization of weights and biases. For training the CNN from scratch, we randomly dropout 50\% neurons of the fc7 layer. The initial learning rate is set to 0.1 and is decreased by 4\% for every 4 epochs until it reaches 0.0005. The learning rate is then fixed at this value for a few more epochs until convergence.
 
 \begin{table*}[t]
+\small
 \begin{center}
 \begin{tabular}{|l|c|c|c|c|c|c|c|c|}
 \hline
-name & \specialcell{patch size/\\stride} & \specialcell{output\\size} & \#1$\times$1 & \specialcell{\#3$\times$3\\reduce} & \#3$\times$3 & \specialcell{double \#3$\times$3\\reduce} & \specialcell{double\\\#3$\times$3} & pool+proj \\
+name & \specialcell{kernel size/\\stride} & \specialcell{output size} & \#1$\times$1 & \specialcell{\#3$\times$3\\reduce} & \#3$\times$3 & \specialcell{double\\ \#3$\times$3\\reduce} & \specialcell{double\\\#3$\times$3} & \specialcell{pool\\proj} \\
 \hline\hline
 input & & $3\times 144\times 56$ & & & & & & \\
 \hline
-conv1 -- conv3 & $3\times 3/2$ & $32\times 144\times 56$ & & & & & & \\
+\specialcell{conv1 --\\conv3} & $3\times 3/2$ & $32\times 144\times 56$ & & & & & & \\
 % \hline
 % conv2 & $3\times 3/2$ & $32\times 144\times 56$ & & & & & & \\
 % \hline
@@ -97,17 +98,17 @@ conv1 -- conv3 & $3\times 3/2$ & $32\times 144\times 56$ & & & & & & \\
 \hline
 pool3 & $2\times 2/2$ & $32\times 72\times 28$ & & & & & & \\
 \hline
-inception (4a) & & $256\times 72\times 28$ & 32 & 32 & 32 & 32 & 32 & avg + 32 \\
+icp (4a) & & $256\times 72\times 28$ & 32 & 32 & 32 & 32 & 32 & \specialcell{avg\\32} \\
 \hline
-inception (4b) & stride 2 & $384\times 72\times 28$ & 32 & 32 & 32 & 32 & 32 & max + pass through \\
+icp (4b) & stride 2 & $384\times 72\times 28$ & 32 & 32 & 32 & 32 & 32 & \specialcell{max\\pass} \\
 \hline
-inception (5a) & & $512\times 36\times 14$ & 64 & 64 & 64 & 64 & 64 & avg + 64 \\
+icp (5a) & & $512\times 36\times 14$ & 64 & 64 & 64 & 64 & 64 & \specialcell{avg\\64} \\
 \hline
-inception (5b) & stride 2 & $768\times 36\times 14$ & 64 & 64 & 64 & 64 & 64 & max + pass through \\
+icp (5b) & stride 2 & $768\times 36\times 14$ & 64 & 64 & 64 & 64 & 64 & \specialcell{max\\pass} \\
 \hline
-inception (6a) & & $1024\times 36\times 14$ & 128 & 128 & 128 & 128 & 128 & avg + 128 \\
+icp (6a) & & $1024\times 36\times 14$ & 128 & 128 & 128 & 128 & 128 & \specialcell{avg\\128} \\
 \hline
-inception (6b) & stride 2 & $1536\times 36\times 14$ & 128 & 128 & 128 & 128 & 128 & max + pass through \\
+icp (6b) & stride 2 & $1536\times 36\times 14$ & 128 & 128 & 128 & 128 & 128 & \specialcell{max\\pass} \\
 \hline
 fc7 & & $256$ & & & & & & \\
 \hline
@@ -190,11 +191,10 @@ The remaining three datasets are relatively quite small. VIPeR~\cite{gray2007eva
 Since Shinpuhkan dataset has only 24 people, it cannot be used for testing the performance of re-identification systems. Thus we only use it in the training phase. For the other datasets, we mainly follow the settings in~\cite{paisitkriangkrai2015learning} to generate the test probe and gallery sets. But our training set has two differences with theirs. First, both the manually cropped and automatically detected images in CUHK03 were used. Second, we sampled 10 images from the video frames of the training identities in PRID. We also randomly drew roughly 20\% of all these images for validation. Notice that both the training and validation identities have no overlap with the test ones. The statistics of all the datasets and evaluation protocols are summarized in Table~\ref{tab:datasets}. In our experiments, we employed the commonly used CMC~\cite{moon2001computational} top-1 accuracy to evaluate all the methods.
 
 \begin{table}[t]
-\small
 \begin{center}
-\begin{tabular}{lccccc}
+\begin{tabular}{lrrrrr}
 \hline\noalign{\smallskip}
-Dataset & \specialcell{\#ID} & \specialcell{\#Trn.\\images} & \specialcell{\#Val.\\images} & \specialcell{\#Prb.\\ID} & \specialcell{\#Gal.\\ID} \\
+Dataset & \specialcell{\#ID} & \specialcell{\#Training\\images} & \specialcell{\#Validation\\images} & \specialcell{\#Probe\\ID} & \specialcell{\#Gallery\\ID} \\
 \noalign{\smallskip}\hline\hline\noalign{\smallskip}
 CUHK03~\cite{li2014deepreid} & 1467 & 21012 & 5252 & 100 & 100 \\
 CUHK01~\cite{li2013locally} & 971 & 1552 & 388 & 485 & 485 \\
@@ -220,29 +220,18 @@ We compare the results of our approach with those by state-of-the-art ones on al
 In order to validate our approach, we first obtain a baseline by training the CNN individually on each domain. Then we merge all the domains jointly with a single-task learning objective (JSTL) and train the CNN from scratch using all these domains. Next, we improve the learned CNN with the proposed deterministic Domain Guided Dropout (JSTL+DGD). Notice that this step provides a single model working on all the domains simultaneously. To show our best possible results, we further fine-tune the CNN separately on each domain with the stochastic Domain Guided Dropout (FT-JSTL+DGD). We also adopt a baseline method by fine-tuning from the JSTL model on each domain with standard dropout (FT-JSTL) for comparison. The results are summarized in Table~\ref{tab:comparison_with_sota}.
 
 \begin{table}[t]
-\small
 \begin{center}
-\begin{tabular}{llll}
+\begin{tabular}{lllllll}
 \hline\noalign{\smallskip}
 \noalign{\smallskip}
-Method & CUHK03 & CUHK01 & PRID\\
+Method & CUHK03 & CUHK01 & PRID & VIPeR & 3DPeS & iLIDS\\
 \noalign{\smallskip}\hline\hline\noalign{\smallskip}
-Best & 62.1~\cite{paisitkriangkrai2015learning} & 53.4~\cite{paisitkriangkrai2015learning} & 17.9~\cite{paisitkriangkrai2015learning} \\
-Individually & 72.6 & 34.4 & 37.0 \\
-JSTL & 72.0 & 62.1 & 59.0 \\
-JSTL+DGD & 72.5 & 63.0 & 60.0 \\
-FT-JSTL & 74.8 & 66.2 & 57.0 \\
-FT-JSTL+DGD & \textbf{75.3} & \textbf{66.6} & \textbf{64.0} \\
-\hline\noalign{\smallskip}
-\noalign{\smallskip}
-Method & VIPeR & 3DPeS & iLIDS \\
-\noalign{\smallskip}\hline\hline\noalign{\smallskip}
-Best & \textbf{45.9}~\cite{paisitkriangkrai2015learning} & 54.2~\cite{xiong2014person} & 52.1~\cite{ding2015deep} \\
-Individually & 12.3 & 31.1 & 27.5 \\
-JSTL & 35.4 & 44.5 & 56.9 \\
-JSTL+DGD & 37.7 & 45.6 & 59.6 \\
-FT-JSTL & 37.7 & 54.0 & 61.1 \\
-FT-JSTL+DGD & 38.6 & \textbf{56.0} & \textbf{64.6} \\
+Best & 62.1~\cite{paisitkriangkrai2015learning} & 53.4~\cite{paisitkriangkrai2015learning} & 17.9~\cite{paisitkriangkrai2015learning} & \textbf{45.9}~\cite{paisitkriangkrai2015learning} & 54.2~\cite{xiong2014person} & 52.1~\cite{ding2015deep} \\
+Individually & 72.6 & 34.4 & 37.0 & 12.3 & 31.1 & 27.5 \\
+JSTL & 72.0 & 62.1 & 59.0 & 35.4 & 44.5 & 56.9 \\
+JSTL+DGD & 72.5 & 63.0 & 60.0 & 37.7 & 45.6 & 59.6 \\
+FT-JSTL & 74.8 & 66.2 & 57.0 & 37.7 & 54.0 & 61.1 \\
+FT-JSTL+DGD & \textbf{75.3} & \textbf{66.6} & \textbf{64.0} & 38.6 & \textbf{56.0} & \textbf{64.6} \\
 \hline\noalign{\smallskip}
 \end{tabular}
 \end{center}
@@ -254,7 +243,7 @@ FT-JSTL+DGD & 38.6 & \textbf{56.0} & \textbf{64.6} \\
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=0.8\linewidth]{figures/multi_domain/cmc_cuhk03.pdf}
+\includegraphics[width=1.0\linewidth]{figures/multi_domain/cmc_cuhk03.pdf}
 \end{center}
 \caption{CMC curves of different methods on CUHK03 dataset}
 \label{fig:cmc_cuhk03}
@@ -275,7 +264,7 @@ After evaluating the overall performance of our pipeline, we also investigate in
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=0.9\linewidth]{figures/multi_domain/cdf_temperature.pdf}
+\includegraphics[width=1.0\linewidth]{figures/multi_domain/cdf_temperature.pdf}
 \end{center}
 \caption{The cumulative number of neurons to be reserved under certain probabilities. Different temperature $T$ settings and corresponding CMC top-1 accuracies are shown in the legend.}
 \label{fig:temp_cdf}
@@ -299,7 +288,7 @@ We further investigate how does the deterministic Domain Guided Dropout change t
 
 \begin{figure}[t]
 \begin{center}
-\includegraphics[width=0.8\linewidth]{figures/multi_domain/gain_wrt_neg_neurons.pdf}
+\includegraphics[width=1.0\linewidth]{figures/multi_domain/gain_wrt_neg_neurons.pdf}
 \end{center}
 \caption{Relative performance gain with respect to the number of neurons having negative impact scores on specific domain in the deterministic Guided Dropout scheme}
 \label{fig:gain_wrt_neg_neurons}
