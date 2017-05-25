@@ -60,7 +60,6 @@ This process is demonstrated in Figure~\ref{fig:dl-conv}. Each output unit can b
 \label{fig:dl-conv}
 \end{center}
 \end{figure}
-
 % subsection dl-linops (end)
 
 \subsection{Non-linear Operators} % (fold)
@@ -80,11 +79,10 @@ One of the most widely used non-linear operators is \emph{rectified linear unit 
 \end{equation}
 
 Another common non-linear operator is \emph{softmax}, which maps a vector $x\in\mathbb{R}^d$ to a multinomial distribution
-\begin{equation}
+\begin{equation} \label{eq:softmax}
   y_i=\mathrm{softmax}(x)_i=\frac{\exp(x_i)}{\sum_{j=1}^d \exp(x_j)}.
 \end{equation}
 Note that $y_i > 0$ and $\sum_{i=1}^d y_i = 1$. It is often used at the end of a neural network for image classification, which casts the network output to a categorical distribution over predefined classes.
-
 % subsection dl-nonlinops (end)
 
 \subsection{Normalizations} % (fold)
@@ -103,8 +101,6 @@ where $\epsilon$ is a small positive number that avoids zero division. At last, 
   y_j^{(i)} = \alpha_j \hat{x}_j^{(i)} + \beta_j,
 \end{equation}
 where $\alpha,\beta\in\mathbb{R}^d$ are learnable parameters.
-
-
 % subsection dl-normalizations (end)
 
 \subsection{Residual Module} % (fold)
@@ -114,14 +110,29 @@ Many popular \emph{convolutional neural network (CNNs)} have been proposed~\cite
   y = f_\theta(x) + x,
 \end{equation}
 where the parameterized function $f_\theta(\cdot)$ learns some additive residual to the input. This residual module can at least keep the input unchanged, thus it will not be worse when stacking more such layers. We refer the readers to~\cite{he2015deep,he2016identity} for more detailed benefits.
-
 % subsection dl-residual (end)
-
-
 % section dl-feedforward (end)
 
 \section{Loss Functions} % (fold)
 \label{sec:dl-loss}
+\emph{Discriminative} learning has two types of objectives --- \emph{classification} and \emph{regression}. Take as an example of predicting a person's age according to his/her photo, classification predicts a categorical class, such as child, teen, middle age, or elder, while regression directly predicts the number, such as $26.5$-year old.
+
+For classification, the target is denoted by an one-hot vector $t\in\mathbb{R}^d$ over $d$ predefined classes, where $t_i=1$ if the target is the class-$i$ and all the other dimensions are zero. The neural network usually outputs a multinomial random variable $y\in\mathbb{R}^d$ as Eq.~\eqref{eq:softmax}, and the \emph{cross entropy} loss function is often used to indicate the discrepancy between random variables $t$ and $y$:
+\begin{equation}
+  \mathrm{cross\ entropy}(t, y) = -\sum_{i=1}^d t_i \log y_i.
+\end{equation}
+
+For regression, both the target and the network output can be denoted by arbitrary vectors $t, y\in\mathbb{R}^d$. Different distance metrics could be used as the loss function, and the \emph{squared L2} distance is one the most widely used
+\begin{equation}
+  \mathrm{squared}_{L_2}(t, y) = ||t-y||_2^2 = \sum_{i=1}^d (t_i - y_i)^2.
+\end{equation}
+In order to improve the robustness to the outliers, Girshick \etal~\cite{girshick2015fast} proposed an alternative \emph{smooth L1} loss
+\begin{equation}
+  \mathrm{smooth}_{L_1}(t, y) = \sum_{i=1}^d \begin{dcases}
+    0.5(t_i - y_i)^2 & \text{if }|t_i-y_i| < 1,\\
+    |t_i-y_i| - 0.5  & \text{otherwise}.
+  \end{dcases}
+\end{equation}
 
 % section dl-loss (end)
 
