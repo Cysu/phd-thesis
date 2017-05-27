@@ -33,7 +33,7 @@ A typical feedforward neural network is a sequence of linear and non-linear oper
 \begin{center}
 \fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
 %\includegraphics[width=0.8\linewidth]{egfigure.eps}
-\caption{A typical feedforward neural network consisting of sequential linear and non-linear operators}
+\caption{Feedforward neural network consisting of sequential linear and non-linear operators}
 \label{fig:dl-feedforward}
 \end{center}
 \end{figure}
@@ -171,7 +171,23 @@ BP utilizes this recursive property, it first computes the outputs $x_1, \cdots,
 
 \subsection{On General Computational Graphs} % (fold)
 \label{sub:dl-bp-on-graphs}
+The above analysis can be generalized to a more complicated \emph{computational graph}, as long as it can be represented by a \emph{directed acyclic graph (DAG)}. A DAG is defined by $G=(V,E)$, where $V=\{v_1,\dots,v_N\}$ is a set of nodes each representing a tensor (could be either an output or a parameter), and $E=\{(v_i, v_j)\}_M$ is a set of edges each indicating $v_j$ relies on $v_i$ as one of its inputs. A demonstration is shown in Figure~\ref{fig:dl-dag}.
+\begin{figure}[t]
+\begin{center}
+\fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+%\includegraphics[width=0.8\linewidth]{egfigure.eps}
+\caption{Demonstration of a directed acyclic computational graph}
+\label{fig:dl-dag}
+\end{center}
+\end{figure}
 
+Suppose all the nodes $v_1,\dots,v_N$ are vectorized and \emph{topologically sorted}, \ie, $(v_i, v_j)\notin E, \forall i < j$. For arbitrary $i < k$, the gradients of node $v_k$ \wrt $v_i$ can be computed by
+\begin{equation} \label{eq:grad-dag}
+  \frac{\partial v_k}{\partial v_i} = \sum_{j | (v_i, v_j) \in E} \left(\frac{\partial v_j}{\partial v_i}\right)^T \frac{\partial v_k}{\partial v_j},
+\end{equation}
+where $\partial v_j/\partial v_i$ is informally the Jacobian matrix of $v_j$ \wrt $v_i$.
+
+In neural networks, $v_N$ (and maybe some other nodes that have no outgoing edges) is typically the loss. Thus to compute the gradient of loss \wrt the parameter nodes, we can similarly perform a two-pass computation. In the forward pass (solid arrows in Figure~\ref{fig:dl-dag}), we sequentially compute the values from $v_1$ to $v_N$ and store all their values in temporary buffers. And then in the backward pass (dashed arrows in Figure~\ref{fig:dl-dag}), we compute the gradient of $v_N$ \wrt to each node $v_i$ based on Eq.~\eqref{eq:grad-dag}.
 % subsection dl-bp-on-graphs (end)
 
 
