@@ -4,7 +4,7 @@
 This chapter introduces some basic concepts about deep learning. Deep learning covers a large spectrum of applications. Categorized by the type of input data, deep learning models can be roughly classified into two classes --- \emph{feedforward neural network} for non-sequential data, such as static images, and \emph{recurrent neural network} for sequential data, such as video, audio, or text in natural language. Deep learning also belongs to general machine learning, therefore multiple frameworks have been developed to adopt different levels of supervisory signals, including supervised, semi-supervised, unsupervised, and reinforcement learning. In this chapter we focus on the supervised learning of feedforward neural networks, which is also mainly used in this dissertation.
 
 For supervised learning, a training dataset can be denoted by $\mathcal{D}_{train}=\left\{(x^{(i)}, t^{(i)})\right\}_N$, where $x$ and $t$ are input and target tensor, respectively, and $N$ is the number of samples. A feedforward neural network is a parameterized function $f_\theta(x)$ that maps an input $x$ to some output tensor $y$. The learning objective is to find the best parameter $\theta^*$ that minimizes a predefined loss function $L(y,t)$, formally
-\begin{equation}
+\begin{equation} \label{eq:objfunc}
   \theta^* = \argmin_\theta \frac{1}{N} \sum_{i=1}^N L\left(f_\theta(x^{(i)}), t^{(i)}\right).
 \end{equation}
 
@@ -138,5 +138,44 @@ In order to improve the robustness to the outliers, Girshick \etal~\cite{girshic
 
 \section{Backpropagation} % (fold)
 \label{sec:dl-bp}
+Due to the highly non-linearity nature of the parametric form of a deep neural network, the objective function Eq.~\eqref{eq:objfunc} usually does not have a closed-form global optimum. Therefore, we often seek for a local optimum instead by solving Eq.~\eqref{eq:objfunc} iteratively using \emph{stochastic gradient descent (SGD)}. During each iteration, we first randomly choose a subset, which is called a \emph{minibatch} $\mathcal{D}_{minibatch} = \left\{\left(x^{(i)}, t^{(i)}\right)\right\}_M$, from the whole training set. Then we compute the gradient of the loss function \wrt the parameters
+\begin{equation} \label{eq:grad}
+  \nabla_\theta L = \frac{1}{M} \sum_{i=1}^M \frac{\partial L\left(f_\theta(x^{(i)}), t^{(i)}\right)}{\partial \theta},
+\end{equation}
+and update the parameters with a step along the direction of steepest descent
+\begin{equation}
+  \theta \gets \theta - \gamma \nabla_\theta L,
+\end{equation}
+where $\gamma$ is a scalar \emph{learning rate}.
+
+\emph{Backpropgation (BP)}, proposed by Rumelhart~\cite{rumelhart1986learning} and LeCun~\cite{lecun1989backpropagation}, is an efficient algorithm that computes the partial gradient in Eq.~\eqref{eq:grad} efficiently, based on the \emph{chain rule} of compound functions.
+
+\subsection{On a Chain of Layers} % (fold)
+\label{sub:dl-bp-on-chain}
+Let's first take a look at a simple case, where a neural network just stacks a sequence of layers as depicted in Figure~\ref{fig:dl-feedforward}. In such case, we can represent the whole network by a chain of compound functions
+\begin{equation}
+  f(x_0) = f_D(f_{D-1}(\cdots f_2(f_1(x_0))\cdots)),
+\end{equation}
+where $x_0$ is the input of the network, $D$ dubbed \emph{depth} is the number of layers, and $f_i(\cdot), i=1,\dots,D$ is the operator of the $i$-th layer, which takes $x_{i-1}$ as input and outputs $x_i$. $f_i(\cdot)$ is parameterized by $\theta_i$, if we vectorize all the $x_i$ and $\theta_i$, according to the chain rule,
+\begin{equation} \label{eq:grad-params}
+  \nabla_{\theta_i} L = \left(\frac{\partial x_i}{\partial \theta_i}\right)^T \nabla_{x_i}L,
+\end{equation}
+where $\partial x_i / \partial \theta_i$ is informally the \emph{Jacobian} matrix of $x_i$ \wrt to $\theta_i$. Meanwhile,
+\begin{equation} \label{eq:grad-input}
+  \nabla_{x_i}L = J_{i+1}^T \cdots J_{D-1}^T J_D^T \nabla_{x_D}L = J_{i+1}^T \nabla_{x_{i+1}}L,
+\end{equation}
+where $J_i$ is the Jacobian matrix of $x_i$ \wrt $x_{i-1}$, which can be seen as a function of $x_i$ and $\theta_i$.
+
+BP utilizes this recursive property, it first computes the outputs $x_1, \cdots, x_D$ from the first layer to the last layer and saves all their values in temporary buffers. Then it computes $\nabla_{x_D}L$ and goes back from the last layer to the first layer. At layer-$i$, it computes both the gradient \wrt the parameters according to Eq.~\eqref{eq:grad-params} and the gradient \wrt the layer inputs according to Eq.~\eqref{eq:grad-input}. The Jacobian matrices can be efficiently computed, since the outputs are all buffered.
+% subsection dl-bp-on-chain (end)
+
+\subsection{On General Computational Graphs} % (fold)
+\label{sub:dl-bp-on-graphs}
+
+% subsection dl-bp-on-graphs (end)
+
+
+
+
 
 % section dl-bp (end)
