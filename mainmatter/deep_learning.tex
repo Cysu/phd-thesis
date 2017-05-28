@@ -187,7 +187,7 @@ Suppose all the nodes $v_1,\dots,v_N$ are vectorized and \emph{topologically sor
 \end{equation}
 where $\partial v_j/\partial v_i$ is informally the Jacobian matrix of $v_j$ \wrt $v_i$.
 
-In neural networks, $v_N$ (and maybe some other nodes that have no outgoing edges) is typically the loss. Thus to compute the gradient of loss \wrt the parameter nodes, we can similarly perform a two-pass computation. In the forward pass (solid arrows in Figure~\ref{fig:dl-dag}), we sequentially compute the values from $v_1$ to $v_N$ and store all their values in temporary buffers. And then in the backward pass (dashed arrows in Figure~\ref{fig:dl-dag}), we compute the gradient of $v_N$ \wrt to each node $v_i$ based on Eq.~\eqref{eq:grad-dag}.
+In neural networks, $v_N$ (and maybe some other nodes that have no outgoing edges) is typically the loss. Thus to compute the gradient of loss \wrt the parameter nodes, we can similarly perform a two-pass computation. In the forward pass (solid arrows in Figure~\ref{fig:dl-dag}), we sequentially compute the values from $v_1$ to $v_N$ and store all their values in temporary buffers. And then in the backward pass (dashed arrows in Figure~\ref{fig:dl-dag}), we compute the gradient of $v_N$ \wrt to each node $v_i$ based on Eq.~\eqref{eq:grad-dag} sequentially from $v_N$ to $v_1$. Whenever a forward or backward node is computed, we can virtually remove all its incoming edges. This would make some nodes no longer have outgoing edges and we can safely reuse their data buffer during implementation to save memory.
 % subsection dl-bp-on-graphs (end)
 
 
