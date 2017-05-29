@@ -16,7 +16,45 @@ This chapter introduces the background of human identification. Because of its r
 
 \section{Problem Settings} % (fold)
 \label{sec:human-id-prob-settings}
+Human identification aims at finding a target person in a gallery of photos. It can be categorized into three levels regarding different types of input photos --- faces only, persons in photo albums, and pedestrians captured by surveillance cameras, as compared in Figure~\ref{fig:human-id-problems}.
+\begin{figure}[t]
+\begin{center}
+\fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
+%\includegraphics[width=0.8\linewidth]{egfigure.eps}
+\caption{Feedforward neural network consisting of sequential linear and non-linear operators}
+\label{fig:human-id-problems}
+\end{center}
+\end{figure}
 
+Facial images are the easiest case among the three, as human faces are more rigid-like. Slight deformation only appears when the person has expressions. Thus computers can easily align different facial images and compare among them, which is well studied in~\cite{sun2014deep1,sun2014deep2,taigman2014deepface,parkhi2015deep}. However, in many cases human faces cannot be clearly captured, for example, there are many people profiles in our daily photo albums. It is much harder and requires utilizing multiple cues, including facial profile, hair styles, body shapes, and clothes to recognize a person~\cite{zhang2015beyond}.
+
+Apart from these two types of human photos captured by normal digital cameras, surveillance cameras capture another type of people --- pedestrians. Due to the low resolution image with various weather and lighting conditions, as well as various human poses, recognizing pedestrians is very challenging. Researchers have named this problem setting \emph{Person Re-Identification (re-ID)}~\cite{zajdel2005keeping}. In this dissertation we also mainly focus on this setting.
+
+\subsection{Evaluation Metrics} % (fold)
+\label{sub:human-id-eval-metrics}
+Despite the difference of image types, all these problem settings can be abstracted as follows. Given a photo of the person of interest, which is often called the \emph{query} or \emph{probe}, and a collection of images, which is called the \emph{gallery}, computers are required to rank the gallery images according to their similarity with the query photo.
+
+\emph{Cumulative Matching Characteristics (CMC)} curves are the most popular evaluation metrics for such problem settings. Consider a simple single-gallery-shot setting, where each gallery identity has only one instance. For each query, an algorithm should rank all the gallery samples according to their distances to the query from small to large, and the CMC top-k accuracy is
+\begin{equation}
+  \mathrm{cmc}_k = \begin{cases}
+    1 & \text{if the query identity is contained in the top-$k$ ranked gallery samples,} \\
+    0 & \text{otherwise},
+  \end{cases}
+\end{equation}
+which is a shifted step function. The final CMC curve is computed by averaging the shifted step functions over all the queries.
+
+While the single-gallery-shot CMC is well defined, it does not have a common agreement when it comes to the multi-gallery-shot setting, where each gallery identity could have multiple instances. Authors of different datasets have defined different criterion. For example, CUHK03~\cite{li2014deepreid} and Market-1501~\cite{zheng2015scalable} calculate the CMC curves and CMC top-k accuracy quite differently. To be specific,
+
+\begin{itemize}
+  \item CUHK03: Query and gallery sets are from different camera views. For each query, they randomly sample one instance for each gallery identity, and compute a CMC curve in the single-gallery-shot setting. The random sampling is repeated for multiple times and the expected CMC curve is reported.
+  \item Market-1501: Query and gallery sets could have same camera views, but for each individual query identity, his/her gallery samples from the same camera are excluded. They do not randomly sample only one instance for each gallery identity. This means the query will always match the ``easiest'' positive sample in the gallery while does not care other harder positive samples when computing CMC.
+\end{itemize}
+% subsection human-id-eval-metrics (end)
+
+\subsection{Recent Advances} % (fold)
+\label{sub:human-id-recent-adv}
+Apart from the classical settings introduced above, researchers have recently extended the human identification problem from various aspects. For example, traditional person re-identification requires both query and gallery images to be manually cropped, while~\cite{xu2014person,xiaoli2017joint,zheng2017person} relaxed such constraints and considered detection with re-ID. Zheng \etal~\cite{zheng2016mars} explored person re-identification from videos rather than static images. Sometimes people do not have photo for the query person, for example, a criminal is only seen by a witness, in such case we can only rely on the testimony. Therefore, Li \etal~\cite{li2017person} proposed to replace the query image with text descriptions to search a person among gallery photos, which enriches the application scenarios of human identification.
+% subsection human-id-recent-adv (end)
 % section human-id-prob-settings (end)
 
 \section{Technical Roadmap} % (fold)
