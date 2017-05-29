@@ -61,5 +61,27 @@ Apart from the classical settings introduced above, researchers have recently ex
 \label{sec:human-id-tech-roadmap}
 After introducing the problem settings for human identification, this section develops a technical roadmap for solving the problem, which reviews some existing approaches and enlightens future research.
 
-Human identification should be addressed from three levels. First, the fundamental question is how to learn discriminative feature representations for a person image.
+Human identification should be addressed from three levels. At first, we only consider the information from a single image, and try to learn good features to represent the person's identity. Secondly, given two feature maps from a pair of images, we should develop methods to compare these two feature maps, and predict whether they belong to the same identity. At last, we could explore the structure of the whole gallery set, determining how the representations should be constructed for this set, and ranking the gallery samples according to the query sample. We elaborate on these three aspects below.
+
+\subsection{Identity Feature Learning} % (fold)
+\label{sub:human-id-feat-learn}
+The first fundamental question is how to learn discriminative feature representations for a single person image. Given an input image $x$, the objective is to learn a feature vector $f(x)$ such that the distance between the same identity $||f(x)-f(x^+)||_2$ (where $x$ and $x^+$ are images of the same identity) is small enough, while the distance among different people $||f(x)-f(x^-)||_2$ (where $x$ and $x^-$ are images of different people) is large enough.
+
+Researchers have proposed various loss functions to learn such features. For example, Sun \etal~\cite{sun2014deep1,sun2014deep2} proposed to train the neural network to classify the identities with softmax cross entropy loss introduced in Section~\ref{sec:dl-loss}. Although it is indeed a surrogate loss function for feature learning, it works reasonally well in practice. Later on triplet loss is proposed~\cite{taigman2014deepface} that learns the features directly for ranking rather than classification. And Parkhi \etal~\cite{parkhi2015deep} combined both loss functions together in a multi-staged training process.
+
+A disadvantage of triplet loss is that it can only compare one pair of samples at each time, which is inefficient and highly relies on good sampling strategies. Therefore, in Section~\ref{sub:online_instance_matching_loss} we proposed a novel loss function dubbed \emph{Online Instance Matching (OIM)} that compares the features among all identities at once. OIM loss absorbs the advantages from softmax and triplet loss but leaves their disadvantages behind. Several other recent work~\cite{wen2016discriminative,titsias2016one,snell2017prototypical} also explored similar ideas.
+% subsection human-id-feat-learn (end)
+
+\subsection{Feature Comparisons} % (fold)
+\label{sub:human-id-feat-comp}
+
+% subsection human-id-feat-comp (end)
+
+\subsection{Structure of Feature Set} % (fold)
+\label{sub:structure_of_feature_set}
+
+% subsection structure_of_feature_set (end)
+
+
+
 % section human-id-tech-roadmap (end)
