@@ -8,11 +8,18 @@
 \usepackage{subcaption}
 \usepackage{fancyhdr}
 \usepackage{comment}
-\usepackage{CJK}
 \usepackage{sectsty}
 \usepackage{xspace}
-
+\usepackage{caption}
+\usepackage{setspace}
+\usepackage{cite}
+\usepackage{stabular}
+\usepackage{fontspec}
+\usepackage{xeCJK}
+\usepackage[breaklinks=true]{hyperref}
 \usepackage{preamble/thesis}
+
+\setCJKmainfont[Mapping=han-trad]{Songti TC}
 
 \allsectionsfont{\usefont{OT1}{cmr}{bx}{n}\selectfont}
 \chapterfont{\usefont{OT1}{cmr}{bx}{n}\selectfont \LARGE}
@@ -22,13 +29,6 @@
 \partfont{\usefont{OT1}{cmr}{bx}{n}\selectfont \Huge}
 \paragraphfont{\bf \em}
 
-\usepackage{caption}
-
-\renewcommand{\rmdefault}{cmr}
-
-\usepackage{setspace}
-\usepackage[pdftex=true,breaklinks=true]{hyperref}
-
 \hypersetup{
 pdftitle={Scalable Human Identification with Deep Learning}, pdfauthor={Tong Xiao},
 pdfkeywords={Human identification, person re-identification, person search, deep learning},
@@ -36,25 +36,6 @@ pdfsubject={Ph.D. Thesis},
 bookmarksnumbered, bookmarksopen=true, pdfpagemode=UseOutlines, pdfstartview={FitV},
 linkcolor=blue, colorlinks=true, anchorcolor=black,
 citecolor=blue,filecolor=magenta,menucolor=blue,pagecolor=red,urlcolor=blue}
-
-\usepackage{cite}
-\renewcommand\citepunct{; } %printed between numbers
-%\renewcommand\citemid{; }  % semicolon before optional note
-%\renewcommand\citeleft{(}  % parentheses around list with note
-%\renewcommand\citeright{)} % parentheses around list with note
-
-\usepackage{stabular}   % for multipage tabular
-%\definecolor{webbrown}{rgb}{1,0,0} % define the color
-%\usepackage{layout}
-%\ExecuteOptions{dvips}
-
-% my added control command lines
-%\renewcommand{\baselinestretch}{1.2}
-%\setlength{\textheight}{8.8in} \setlength{\textwidth}{6.5in}
-%\setlength{\columnsep}{0.3125in} \setlength{\topmargin}{0in}
-%\setlength{\headheight}{0.2in} \setlength{\headsep}{0.2in}
-%\setlength{\parindent}{1pc} \setlength{\oddsidemargin}{-.125in}
-%\setlength{\evensidemargin}{-.125in}
 
 \setlength{\textfloatsep}{20pt} \setlength{\floatsep}{20pt}
 \setlength{\intextsep}{20pt} \setlength{\dbltextfloatsep}{20pt}
@@ -66,28 +47,15 @@ citecolor=blue,filecolor=magenta,menucolor=blue,pagecolor=red,urlcolor=blue}
 \renewcommand{\floatpagefraction}{0.999}
 \renewcommand{\dbltopfraction}{0.999}
 \renewcommand{\dblfloatpagefraction}{0.999}
-
 \renewcommand{\floatpagefraction}{0.999}
-
-\newcommand{\argmin}{\mathop{\mathrm{arg\,min}}}
-\newcommand{\argmax}{\mathop{\mathrm{arg\,max}}}
 
 \renewcommand{\today}{\ifcase\month\or
   January\or February\or March\or April\or May\or June\or
   July\or August\or September\or October\or November\or December\fi\space\number\year}
 
-
-%\newenvironment{Abstract}
-%{\begin{center}\textbf{Abstract}%
-% \end{center} \small \sl \begin{quote}}
-%{\end{quote}}
-
 \def\figurename{\bf Figure}
 \def\tablename{\bf Table}
 \renewcommand{\captionfont}{\sl \small}
-
-% LaTeX 2.09
-%\documentstyle[12pt,amsmath,amssymb,thesis,float,multicol,epsfig]{report}
 
 \restylefloat{figure} \restylefloat{table}
 
