@@ -1,17 +1,12 @@
-% LaTeX thesis template
-
-% LaTeX 2e
 \documentclass[a4paper,11pt,twoside]{report}
-%\documentclass[a4paper,11pt,oneside]{report}
-
 \input{preamble/preamble.tex}
 
 \begin{document}
 
+% Preface
 \input{frontmatter/frontmatter.tex}
 
-%%%%% Main Body %%%%%
-% Chapters
+% Main Chapters
 \input{mainmatter/introduction.tex}
 \input{mainmatter/deep_learning.tex}
 \input{mainmatter/human_identification.tex}
@@ -42,7 +37,6 @@
 
 \small \addcontentsline{toc}{chapter}{Bibliography}
 \bibliography{backmatter/references}
-
 \end{singlespace}
 
 %% Appendix
