@@ -223,4 +223,4 @@ TSWLatexianTemp*
 
 # Project specific
 thesis.pdf
-
+*.DS_Store

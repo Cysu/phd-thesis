@@ -31,8 +31,7 @@ Section~\ref{sec:dl-feedforward} will detail on how to parameterize $f_\theta(\c
 A typical feedforward neural network is a sequence of linear and non-linear operators, as depicted in Figure~\ref{fig:dl-feedforward}. These linear and non-linear operators are often encapsulated into \emph{layers} when designing neural networks. The output of the previous layer is served as the input of the next layer. Below we will introduce some commonly used operators.
 \begin{figure}[t]
 \begin{center}
-\fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
-%\includegraphics[width=0.8\linewidth]{egfigure.eps}
+\includegraphics[width=1.0\linewidth]{figures/feedforward.pdf}
 \caption{Feedforward neural network consisting of sequential linear and non-linear operators}
 \label{fig:dl-feedforward}
 \end{center}
@@ -54,9 +53,8 @@ While each output dimension $y_i$, also called \emph{unit}, is computed from all
 This process is demonstrated in Figure~\ref{fig:dl-conv}. Each output unit can be seen as the inner-product between the kernel weight and the input content inside a local region, which represents their matching similarities. The convolution kernel is shared across all the output units on the feature map. Thus it serves as a pattern \emph{detector} that finds certain pattern on the input image.
 \begin{figure}[t]
 \begin{center}
-\fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
-%\includegraphics[width=0.8\linewidth]{egfigure.eps}
-\caption{Convolution operator on a 3-D input image}
+\includegraphics[width=1.0\linewidth]{figures/convolution.pdf}
+\caption{Convolution operator on a 3-channel input image}
 \label{fig:dl-conv}
 \end{center}
 \end{figure}
@@ -174,8 +172,7 @@ BP utilizes this recursive property, it first computes the outputs $x_1, \cdots,
 The above analysis can be generalized to a more complicated \emph{computational graph}, as long as it can be represented by a \emph{directed acyclic graph (DAG)}. A DAG is defined by $G=(V,E)$, where $V=\{v_1,\dots,v_N\}$ is a set of nodes each representing a tensor (could be either an output or a parameter), and $E=\{(v_i, v_j)\}_M$ is a set of edges each indicating $v_j$ relies on $v_i$ as one of its inputs. A demonstration is shown in Figure~\ref{fig:dl-dag}.
 \begin{figure}[t]
 \begin{center}
-\fbox{\rule{0pt}{2in} \rule{0.9\linewidth}{0pt}}
-%\includegraphics[width=0.8\linewidth]{egfigure.eps}
+\includegraphics[width=1.0\linewidth]{figures/computational-graph.pdf}
 \caption{Demonstration of a directed acyclic computational graph}
 \label{fig:dl-dag}
 \end{center}
