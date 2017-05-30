@@ -72,9 +72,11 @@ Researchers have proposed various loss functions to learn such features. For exa
 A disadvantage of triplet loss is that it can only compare one pair of samples at each time, which is inefficient and highly relies on good sampling strategies. Therefore, in Section~\ref{sub:online_instance_matching_loss} we proposed a novel loss function dubbed \emph{Online Instance Matching (OIM)} that compares the features among all identities at once. OIM loss absorbs the advantages from softmax and triplet loss but leaves their disadvantages behind. Several other recent work~\cite{wen2016discriminative,titsias2016one,snell2017prototypical} also explored similar ideas.
 % subsection human-id-feat-learn (end)
 
-\subsection{Feature Comparisons} % (fold)
+\subsection{Feature Comparison} % (fold)
 \label{sub:human-id-feat-comp}
+After getting discriminative feature representations for each single image, the next question is how to compare a pair of image features. Prior to deep learning, many research focused on metric learning~\cite{davis2007information,weinberger2005distance,mcfee2010metric,koestinger2012large,liao2015person,zhang2016learning}, which learns a distance function $d(f(x_1), f(x_2))$ that replaces the conventional L2-distance. However when deep learning emerges, learning simple linear metrics can be casted to learning underlying features, which makes metric learning less significant.
 
+Comparing a pair of deep learning feature maps is nontrivial, since the feature maps contain spatial information and the two feature maps are usually not well aligned, for example, the region of frontal face in one image could be just background in the other image. Li \etal~\cite{li2014deepreid} proposed a siamese deep learning architecture that computes the correlation between the strips on two feature maps, and estimates the similarity according to the correlation. Ahmed \etal~\cite{ahmed2015improved} further changed the correlation from strips to local rectangle regions, which significantly improved the performance. This feature maps matching problem is also closely related to the pixel correspondence problem for \emph{optical flow} estimation~\cite{weinzaepfel2013deepflow,revaud2016deepmatching}. One may get inspired from these work to design better architectures for capturing geometric transformations.
 % subsection human-id-feat-comp (end)
 
 \subsection{Structure of Feature Set} % (fold)
