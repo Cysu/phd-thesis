@@ -19,8 +19,7 @@ Person re-identification (re-id)~\cite{zajdel2005keeping,gheissari2006person} ai
    \label{fig:ps-intro-person-search}
 \end{subfigure}
 \end{center}
-\vspace{-2ex}\caption{Comparison between person re-identification and person search. The person search problem setting is closer to real-world applications and more challenging, as detecting pedestrians would inevitably produce false alarms, misdetections, and misalignments.}
-\vspace{-2ex}
+\caption{Comparison between person re-identification and person search. The person search problem setting is closer to real-world applications and more challenging, as detecting pedestrians would inevitably produce false alarms, misdetections, and misalignments.}
 \label{fig:ps-intro}
 \end{figure}
 
@@ -134,7 +133,6 @@ Overall & 18,184 & 96,143 & 8,432 \\
 \hline\noalign{\smallskip}
 \end{tabular}
 \end{center}
-\vspace{-3ex}
 \caption{Statistics of the dataset with respect to data sources and training / test splits.}
 \label{tab:ps-dataset-stats}
 \end{table}
@@ -143,9 +141,7 @@ Overall & 18,184 & 96,143 & 8,432 \\
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/height-distr.pdf}
 \end{center}
-\vspace{-3ex}
 \caption{The height distributions of labeled and unlabeled identities in our dataset.}
-\vspace{-1ex}
 \label{fig:ps-height-distr}
 \end{figure}
 % subsection statistics (end)
@@ -173,7 +169,6 @@ We compare our framework with conventional methods that break down the problem i
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/detector-pr-curves.pdf}
 \end{center}
-\vspace{-4ex}
 \caption{Recall-Precision curves of different detectors. APs are listed in the legend.}
 \label{fig:ps-detector-pr-curves}
 \end{figure}
@@ -219,9 +214,7 @@ Ours                   & --- & --- & \textbf{75.5} & \textbf{77.9} \\
 \hline\noalign{\smallskip}
 \end{tabular}
 \end{center}
-\vspace{-3ex}
 \caption{Comparisons between our framework and separate pedestrian detection + person re-id methods. }
-\vspace{-1ex}
 \label{tab:ps-results}
 \end{table}
 \setlength{\tabcolsep}{6pt}
@@ -239,9 +232,7 @@ Another interesting phenomenon is that although IDNet and LOMO+XQDA have similar
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/oim-vs-softmax.pdf}
 \end{center}
-\vspace{-3ex}
 \caption{Comparisons between using the proposed Online Instance Matching (OIM) and Softmax loss (with and without pretraining the Softmax classifier) in our framework. The final accuracies and mAPs are shown in the legends.}
-\vspace{1ex}
 \label{fig:ps-oim-vs-softmax}
 \end{figure}
 We validate the effectiveness of the proposed Online Instance Matching (OIM) loss by comparing it against Softmax baselines with or without pretraining the classifier matrix. The training identification accuracy and test person search mAP curves are demonstrated in Figure~\ref{fig:ps-oim-vs-softmax}. First, we can see that using Softmax loss without pretraining classifier remains at low accuracy during the whole process. This phenomenon verifies our analysis in Section~\ref{sub:ps-oim-loss} that learning a large classifier matrix is difficult. Even with proper pretraining, the training accuracy still improves slowly, and the test mAP keeps at around $60\%$.
@@ -265,9 +256,7 @@ ResNet-50 & OIM & \textbf{77.5} & \textbf{82.1} & \textbf{68.1} \\
 \hline\noalign{\smallskip}
 \end{tabular}
 \end{center}
-\vspace{-3ex}
 \caption{CMC top-1 accuracy (\%) of using Softmax or OIM loss for standard person re-id task.}
-\vspace{-1ex}
 \label{tab:ps-oim-reid}
 \end{table}
 \setlength{\tabcolsep}{6pt}
@@ -290,7 +279,6 @@ ResNet-50 & OIM & \textbf{77.5} & \textbf{82.1} & \textbf{68.1} \\
   \label{fig:ps-factor-gallery-size}
 \end{subfigure}
 \end{center}
-% \vspace{-2ex}
 \caption{Test mAP curves of different factors. The final mAPs are shown in the legend if applicable.}
 \end{figure*}
 \textbf{Sub-sampling the identities.} As the number of identities increases, the computation time of the OIM loss could become the bottleneck of the whole system. Thus we proposed in Section~\ref{sub:ps-oim-loss} to approximate Eq.~\eqref{eq:ps-pi} and Eq.~\eqref{eq:ps-qi} by sub-sampling both the labeled and unlabeled identities in the denominators. We validate this approach here by training the framework with sub-sampling size of $10$, $100$, and $1000$. The test mAP curves are demonstrated in Figure~\ref{fig:ps-subsampling}. In general, sub-sampling a small number of identities relaxes the training objective, which leads to slightly inferior performance but much faster convergence rate. This indicates that our framework is scalable to larger datasets with even more identities by using proper sub-sampling rate.
@@ -308,9 +296,7 @@ mAP (\%) & 54.2 & 62.1 & 75.5 & 75.3 & \textbf{75.7} \\
 \hline\noalign{\smallskip}
 \end{tabular}
 \end{center}
-\vspace{-3ex}
 \caption{Comparisons among different dimensions of L2-normalized feature subspace. N/A means that we directly use the L2-normalized $2048$-d global pooled feature vector.}
-\vspace{-1ex}
 \label{tab:ps-embed-dim}
 \end{table}
 \setlength{\tabcolsep}{6pt}
