@@ -68,7 +68,7 @@ The first fundamental question is how to learn discriminative feature representa
 
 Researchers have proposed various loss functions to learn such features. For example, Sun \etal~\cite{sun2014deep1,sun2014deep2} proposed to train the neural network to classify the identities with softmax cross entropy loss introduced in Section~\ref{sec:dl-loss}. Although it is indeed a surrogate loss function for feature learning, it works reasonally well in practice. Later on triplet loss is proposed~\cite{taigman2014deepface} that learns the features directly for ranking rather than classification. And Parkhi \etal~\cite{parkhi2015deep} combined both loss functions together in a multi-staged training process.
 
-A disadvantage of triplet loss is that it can only compare one pair of samples at each time, which is inefficient and highly relies on good sampling strategies. Therefore, in Section~\ref{sub:online_instance_matching_loss} we proposed a novel loss function dubbed \emph{Online Instance Matching (OIM)} that compares the features among all identities at once. OIM loss absorbs the advantages from softmax and triplet loss but leaves their disadvantages behind. Several other recent work~\cite{wen2016discriminative,titsias2016one,snell2017prototypical} also explored similar ideas.
+A disadvantage of triplet loss is that it can only compare one pair of samples at each time, which is inefficient and highly relies on good sampling strategies. Therefore, in Section~\ref{sub:ps-oim-loss} we proposed a novel loss function dubbed \emph{Online Instance Matching (OIM)} that compares the features among all identities at once. OIM loss absorbs the advantages from softmax and triplet loss but leaves their disadvantages behind. Several other recent work~\cite{wen2016discriminative,titsias2016one,snell2017prototypical} also explored similar ideas.
 % subsection human-id-feat-learn (end)
 
 \subsection{Feature Comparison} % (fold)
@@ -79,7 +79,7 @@ Comparing a pair of deep learning feature maps is nontrivial, since the feature 
 % subsection human-id-feat-comp (end)
 
 \subsection{Structure of Feature Set} % (fold)
-\label{sub:structure_of_feature_set}
+\label{sub:human-id-structure-set}
 The last question is how to rank a set of gallery images according to the query. Answering this question requires modeling the structure of the gallery feature set. For example, by observing many gallery photos one can understand what the \emph{salient} features are for distinguishing different people~\cite{zhao2013unsupervised,zhao2017person}. Several other work focused on the ranking algorithm itself. Zhong \etal~\cite{zhong2017re} proposed a re-ranking algorithm by exploiting the prior knowledge that each identity has at least two instances in gallery set. Liu \etal~\cite{liu2013pop} designed an algorithm cooperate with human labelers to refine a initial ranking result.
-% subsection structure_of_feature_set (end)
+% subsection human-id-structure-set (end)
 % section human-id-tech-roadmap (end)

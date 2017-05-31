@@ -2,7 +2,7 @@
 \label{ch:person-search}
 
 \section{Introduction} % (fold)
-\label{sec:introduction}
+\label{sec:ps-introduction}
 Person re-identification (re-id)~\cite{zajdel2005keeping,gheissari2006person} aims at matching a target person with a gallery of pedestrian images. It has many video surveillance applications, such as finding criminals~\cite{wang2013intelligent}, cross-camera person tracking~\cite{yu2013harry}, and person activity analysis~\cite{loy2009multi}. The problem is challenging because of complex variations of human poses, camera viewpoints, lighting, occlusion, resolution, background clutter, \etc, and thus draws much research attention in recent years~\cite{zheng2015scalable,liao2015person,paisitkriangkrai2015learning,xiao2016learning,li2014deepreid,chu2016structured}.
 
 \begin{figure}[t]
@@ -10,21 +10,21 @@ Person re-identification (re-id)~\cite{zajdel2005keeping,gheissari2006person} ai
 \begin{subfigure}[b]{\linewidth}
    \includegraphics[width=\linewidth]{figures/person_search/intro-person-reid.pdf}
    \caption{Person re-id: matching with manually cropped pedestrians}
-   \label{fig:intro-person-reid}
+   \label{fig:ps-intro-person-reid}
 \end{subfigure}
 \\[1em]
 \begin{subfigure}[b]{\linewidth}
    \includegraphics[width=\linewidth]{figures/person_search/intro-person-search.pdf}
    \caption{Person search: finding from whole scene images}
-   \label{fig:intro-person-search}
+   \label{fig:ps-intro-person-search}
 \end{subfigure}
 \end{center}
 \vspace{-2ex}\caption{Comparison between person re-identification and person search. The person search problem setting is closer to real-world applications and more challenging, as detecting pedestrians would inevitably produce false alarms, misdetections, and misalignments.}
 \vspace{-2ex}
-\label{fig:intro}
+\label{fig:ps-intro}
 \end{figure}
 
-Although numerous person re-id datasets and methods have been proposed, there is still a big gap between the problem setting itself and real-world applications. In most benchmarks~\cite{li2014deepreid,gray2007evaluating,hirzer2011person,li2013locally,zheng2009associating}, the gallery only contains manually cropped pedestrian images (Figure~\ref{fig:intro-person-reid}), while in real applications, the goal is to find a target person in a gallery of whole scene images, as shown in Figure~\ref{fig:intro-person-search}. Following the protocols of these benchmarks, most of the existing person re-id methods assume perfect pedestrian detections. However, these manually cropped bounding boxes are unavailable in practical applications. Off-the-shelf pedestrian detectors would inevitably produce false alarms, misdetections, and misalignments, which could harm the final searching performance significantly.
+Although numerous person re-id datasets and methods have been proposed, there is still a big gap between the problem setting itself and real-world applications. In most benchmarks~\cite{li2014deepreid,gray2007evaluating,hirzer2011person,li2013locally,zheng2009associating}, the gallery only contains manually cropped pedestrian images (Figure~\ref{fig:ps-intro-person-reid}), while in real applications, the goal is to find a target person in a gallery of whole scene images, as shown in Figure~\ref{fig:ps-intro-person-search}. Following the protocols of these benchmarks, most of the existing person re-id methods assume perfect pedestrian detections. However, these manually cropped bounding boxes are unavailable in practical applications. Off-the-shelf pedestrian detectors would inevitably produce false alarms, misdetections, and misalignments, which could harm the final searching performance significantly.
 
 In 2014, Xu~\etal~\cite{xu2014person} made the first step towards closing this gap. They introduced the person search problem to the community, and proposed a sliding window searching strategy based on a combination of pedestrian detection and person matching scores. However, the performance is limited by the handcrafted features, and the sliding window framework is not scalable.
 
@@ -36,7 +36,7 @@ The contribution of our work is three-fold. First, we propose a new deep learnin
 % section introduction (end)
 
 \section{Related Work} % (fold)
-\label{sec:related_work}
+\label{sec:ps-related-work}
 \textbf{Person re-identification.} Early person re-identification methods addressed the problem by manually designing discriminative features~\cite{wang2007shape,hamdoun2008person,zhao2013unsupervised}, learning feature transforms across camera views~\cite{prosser2010person,porikli2003inter,shen2015person}, and learning distance metrics~\cite{zheng2011person,gray2008viewpoint,prosser2010person,paisitkriangkrai2015learning,liao2015efficient}. Recent years, many researchers have proposed various deep learning based methods that jointly handle all these aspects. Li~\etal~\cite{li2014deepreid} and Ahmed~\etal~\cite{ahmed2015improved} designed specific CNN models for person re-id. Both the networks utilize as input a pair of cropped pedestrian images and employ a binary verification loss function to train the parameters. Ding~\etal~\cite{ding2015deep} and Cheng~\etal~\cite{cheng2016person} exploited triplet samples for training CNNs to minimize the feature distance between the same person and maximize the distance between different people. Apart from using pairwise or triplet loss functions, Xiao~\etal~\cite{xiao2016learning} proposed to learn features by classifying identities. Multiple datasets are combined together and a domain guided dropout technique is proposed to improve the feature learning. Several recent works addressed on solving person re-id on abnormal images, such as low-resolution images~\cite{li2015multi}, or partially occluded images~\cite{zheng2015partial}.
 
 Concurrent with our prior arXiv submission, Zheng~\etal~\cite{zheng2017person} also contributed a benchmark dataset for person search. They exploited separate detection and re-id methods with scores re-weighting to solve the problem, while in this work we propose a deep learning framework that jointly handles both aspects.
@@ -49,15 +49,15 @@ Concurrent with our prior arXiv submission, Zheng~\etal~\cite{zheng2017person} a
 \includegraphics[width=1.0\linewidth]{figures/person_search/framework.pdf}
 \end{center}
 \caption{Our proposed framework. Pedestrian proposal net generates bounding boxes of candidate people, which are fed into an identification net for feature extraction. We project the features to a L2-normalized $256$-d subspace, and train it with a proposed Online Instance Matching loss. Both the pedestrian proposal net and the identification net share the underlying convolutional feature maps.}
-\label{fig:framework}
+\label{fig:ps-framework}
 \end{figure*}
 \section{Method} % (fold)
-\label{sec:method}
+\label{sec:ps-method}
 
-We propose a new deep learning framework that jointly handles the pedestrian detection and person re-identification in a single convolutional neural network (CNN), as shown in Figure~\ref{fig:framework}. Given as input a whole scene image, we first use a stem CNN to transform from raw pixels to convolutional feature maps. A pedestrian proposal net is built upon these feature maps to predict bounding boxes of candidate people, which are then fed into an identification net with RoI-Pooling~\cite{girshick2015fast} to extract L2-normalized $256$-d features for each of them. At inference stage, we rank the gallery people according to their feature distances to the target person. At training stage, we propose an \textit{Online Instance Matching} (OIM) loss function on top of the feature vectors to supervise the identification net, together with several other loss functions for training the proposal net in a multi-task manner. Below we will first detail the CNN model structure, and then elaborate on the OIM loss function.
+We propose a new deep learning framework that jointly handles the pedestrian detection and person re-identification in a single convolutional neural network (CNN), as shown in Figure~\ref{fig:ps-framework}. Given as input a whole scene image, we first use a stem CNN to transform from raw pixels to convolutional feature maps. A pedestrian proposal net is built upon these feature maps to predict bounding boxes of candidate people, which are then fed into an identification net with RoI-Pooling~\cite{girshick2015fast} to extract L2-normalized $256$-d features for each of them. At inference stage, we rank the gallery people according to their feature distances to the target person. At training stage, we propose an \textit{Online Instance Matching} (OIM) loss function on top of the feature vectors to supervise the identification net, together with several other loss functions for training the proposal net in a multi-task manner. Below we will first detail the CNN model structure, and then elaborate on the OIM loss function.
 
 \subsection{Model Structure} % (fold)
-\label{sub:model_structure}
+\label{sub:ps-model-structure}
 We adopt the ResNet-50~\cite{he2015deep} as our base CNN model. It has a $7\times 7$ convolution layer in front (named conv1), followed by four blocks (named conv2\_x to conv5\_x) each containing $3, 4, 6, 3$ residual units, respectively. We exploit conv1 to conv4\_3 as the stem part. Given an input image, the stem will produce $1024$ channels of features maps, which have $1/16$ resolutions of the original image.
 
 On top of these feature maps, we build a pedestrian proposal network to detect person candidates. A $512\times3\times3$ convolutional layer is first added to transform the features specifically for pedestrians. Then we follow~\cite{ren2015faster} to associate $9$ anchors at each feature map location, and use a Softmax classifier to predict whether each anchor is a pedestrian or not, as well as a linear regression to adjust their locations. We will keep the top $128$ adjusted bounding boxes after non-maximum suppression as our final proposals.
@@ -66,32 +66,32 @@ To find the target person among all these proposals, we build an identification 
 % subsection model_structure (end)
 
 \subsection{Online Instance Matching Loss} % (fold)
-\label{sub:online_instance_matching_loss}
+\label{sub:ps-oim-loss}
 
 \begin{figure*}[t]
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/oim.pdf}
 \end{center}
 \caption{Online Instance Matching. The left part shows the labeled (blue) and unlabeled (orange) identity proposals in an image. We maintain a lookup table (LUT) and a circular queue (CQ) to store the features. When forward, each labeled identity is matched with all the stored features. When backward, we update LUT according to the id, pushing new features to CQ, and pop out-of-date ones. Note that both data structures are external buffer, rather than the parameters of the CNN.}
-\label{fig:oim}
+\label{fig:ps-oim}
 \end{figure*}
 
-There are three different types of proposals, labeled identities, unlabeled identities, and background clutter. Suppose there are $L$ different target people in the training set, when a proposal matches a target person, we call it an instance of the labeled identity, and assign a class-id (from $1$ to $L$) to it accordingly. There are also lots of proposals predicting pedestrians correctly, but do not belong to anyone of our target people. We call them unlabeled identities in such cases. We demonstrate some examples of labeled and unlabeled identities in Figure~\ref{fig:oim} with blue and orange bounding boxes, respectively. Other proposals are just false alarms on other objects or background regions. In the proposed loss function, we only consider the labeled and unlabeled identities, while leave the other proposals untouched.
+There are three different types of proposals, labeled identities, unlabeled identities, and background clutter. Suppose there are $L$ different target people in the training set, when a proposal matches a target person, we call it an instance of the labeled identity, and assign a class-id (from $1$ to $L$) to it accordingly. There are also lots of proposals predicting pedestrians correctly, but do not belong to anyone of our target people. We call them unlabeled identities in such cases. We demonstrate some examples of labeled and unlabeled identities in Figure~\ref{fig:ps-oim} with blue and orange bounding boxes, respectively. Other proposals are just false alarms on other objects or background regions. In the proposed loss function, we only consider the labeled and unlabeled identities, while leave the other proposals untouched.
 
-As our goal is to distinguish different people, a natural objective is to minimize the features discrepancy among the instances of the same person, while maximize the discrepancy among different people. To fulfill this goal, we need to memorize the features of all the people. This could be done offline by doing network forward on all the training images, but it is not practical when using stochastic gradient descent (SGD) for optimization. Thus in our approach, we choose an online approximation instead. Denote the features of a labeled identity inside a mini-batch by $x\in \mathbb{R}^D$, where $D$ is the feature dimension, we maintain a lookup table (LUT) $V\in \mathbb{R}^{D\times L}$ to store the features of all the labeled identities, as demonstrated in Figure~\ref{fig:oim}. During the forward propagation, we compute cosine similarities between the mini-batch sample and all the labeled identities by $V^T x$. During backward, if the target class-id is $t$, then we will update the $t$-th column of the LUT by $v_t \gets \gamma v_t + (1-\gamma) x$, where $\gamma \in [0, 1]$, and then scale $v_t$ to have unit L2-norm.
+As our goal is to distinguish different people, a natural objective is to minimize the features discrepancy among the instances of the same person, while maximize the discrepancy among different people. To fulfill this goal, we need to memorize the features of all the people. This could be done offline by doing network forward on all the training images, but it is not practical when using stochastic gradient descent (SGD) for optimization. Thus in our approach, we choose an online approximation instead. Denote the features of a labeled identity inside a mini-batch by $x\in \mathbb{R}^D$, where $D$ is the feature dimension, we maintain a lookup table (LUT) $V\in \mathbb{R}^{D\times L}$ to store the features of all the labeled identities, as demonstrated in Figure~\ref{fig:ps-oim}. During the forward propagation, we compute cosine similarities between the mini-batch sample and all the labeled identities by $V^T x$. During backward, if the target class-id is $t$, then we will update the $t$-th column of the LUT by $v_t \gets \gamma v_t + (1-\gamma) x$, where $\gamma \in [0, 1]$, and then scale $v_t$ to have unit L2-norm.
 
 Apart from labeled identities, many unlabeled identities are also valuable for learning feature representations. They can be safely used as negative classes for all the labeled identities. We use a circular queue to store the features of these unlabeled identities that appear in recent mini-batches. Denote the features in this circular queue by $U\in \mathbb{R}^{D\times Q}$, where $Q$ is the queue size, we can also compute their cosine similarities with the mini-batch sample by $U^Tx$. After each iteration, we push the new feature vectors into the queue, while pop the out-of-date ones to keep the queue size unchanged.
 
 Based on these two data structures, we define the probability of $x$ being recognized as the identity with class-id $i$ by a Softmax function
-\begin{equation} \label{eq:pi}
+\begin{equation} \label{eq:ps-pi}
 p_i=\frac{\exp(v_i^Tx/\tau)}{\sum_{j=1}^L\exp(v_j^Tx/\tau)+\sum_{k=1}^Q\exp(u_k^Tx/\tau)},
 \end{equation}
 where higher temperature $\tau$ leads to softer probability distribution. Similarly, the probability of being recognized as the $i$-th unlabeled identity in the circular queue is
-\begin{equation} \label{eq:qi}
+\begin{equation} \label{eq:ps-qi}
 q_i=\frac{\exp(u_i^Tx/\tau)}{\sum_{j=1}^L\exp(v_j^Tx/\tau)+\sum_{k=1}^Q\exp(u_k^Tx/\tau)}.
 \end{equation}
 OIM objective is to maximize the expected log-likelihood
-\begin{equation} \label{eq:loglik}
+\begin{equation} \label{eq:ps-loglik}
 \mathcal{L}=\mathrm{E}_x\left[\log p_t\right],
 \end{equation}
 and its gradient with respect to $x$ can be derived as
@@ -105,18 +105,18 @@ It can be seen that our OIM loss effectively compares the mini-batch sample with
 
 Although our OIM loss formulation is similar to the Softmax one, the major difference is that the OIM loss is non-parametric. The LUT and circular queue are considered as external buffer, rather than the network parameters. The gradients directly operate on the features without the transformation by a classifier matrix. The potential drawback of this non-parametric loss is that it could overfit more easily. We find that projecting the features into a L2-normalized low-dimensional subspace helps reduce overfitting.
 
-\textbf{Scalability.} Computing the partition function in Eq~\eqref{eq:pi} and Eq~\eqref{eq:qi} could be time consuming when the number of identities increases. To overcome this problem, we can approximate the denominators by sub-sampling the labeled and unlabeled identities, which results in optimizing a lower-bound of Eq~\eqref{eq:loglik}.
+\textbf{Scalability.} Computing the partition function in Eq~\eqref{eq:ps-pi} and Eq~\eqref{eq:ps-qi} could be time consuming when the number of identities increases. To overcome this problem, we can approximate the denominators by sub-sampling the labeled and unlabeled identities, which results in optimizing a lower-bound of Eq~\eqref{eq:ps-loglik}.
 % subsection online_instance_matching_loss (end)
 
 % section method (end)
 
 \section{Dataset} % (fold)
-\label{sec:dataset}
+\label{sec:ps-dataset}
 We collect and annotate a large-scale CUHK-SYSU Person Search Dataset to evaluate our proposed method. We exploit two data sources to diversify the scenes. On one hand, we use hand-held cameras to shoot street snaps around urban cities. On the other hand, we collect movie snapshots that contain pedestrians, as they could enrich the variations of viewpoints, lighting, and backgrounds. In this section, we will show the basic statistics of our dataset, as well as define the evaluation protocols and metrics.
 
 \subsection{Statistics} % (fold)
-\label{sub:statistics}
-After collecting all the $18,184$ images, we first densely annotate all the $96,143$ pedestrians bounding boxes in these scenes, and then associate the person that appears across different images, resulting in $8,432$ labeled identities. The statistics of two data sources are listed in Table~\ref{tab:dataset-stats}. We did not annotate those people who appear with half bodies or abnormal poses such as sitting or squatting. Moreover, people who change clothes and decorations in different video frames are not associated in our dataset, since person search problem requires to recognize identities mainly according to their clothes and body shapes rather than faces. We ensure that the background pedestrians do not contain labeled identities, and thus they can be safely served as negative samples for identification. Note that we also ignore the background pedestrians whose heights are smaller than $50$ pixels, as they would be hard to recognize even for human labelers. The height distributions of labeled and unlabeled identities are demonstrated in Figure~\ref{fig:height-distr}. It can be seen that our dataset has rich variations of pedestrian scales.
+\label{sub:ps-statistics}
+After collecting all the $18,184$ images, we first densely annotate all the $96,143$ pedestrians bounding boxes in these scenes, and then associate the person that appears across different images, resulting in $8,432$ labeled identities. The statistics of two data sources are listed in Table~\ref{tab:ps-dataset-stats}. We did not annotate those people who appear with half bodies or abnormal poses such as sitting or squatting. Moreover, people who change clothes and decorations in different video frames are not associated in our dataset, since person search problem requires to recognize identities mainly according to their clothes and body shapes rather than faces. We ensure that the background pedestrians do not contain labeled identities, and thus they can be safely served as negative samples for identification. Note that we also ignore the background pedestrians whose heights are smaller than $50$ pixels, as they would be hard to recognize even for human labelers. The height distributions of labeled and unlabeled identities are demonstrated in Figure~\ref{fig:ps-height-distr}. It can be seen that our dataset has rich variations of pedestrian scales.
 \begin{table}
 \begin{center}
 \begin{tabular}{lrrr}
@@ -136,7 +136,7 @@ Overall & 18,184 & 96,143 & 8,432 \\
 \end{center}
 \vspace{-3ex}
 \caption{Statistics of the dataset with respect to data sources and training / test splits.}
-\label{tab:dataset-stats}
+\label{tab:ps-dataset-stats}
 \end{table}
 
 \begin{figure}[t]
@@ -146,13 +146,13 @@ Overall & 18,184 & 96,143 & 8,432 \\
 \vspace{-3ex}
 \caption{The height distributions of labeled and unlabeled identities in our dataset.}
 \vspace{-1ex}
-\label{fig:height-distr}
+\label{fig:ps-height-distr}
 \end{figure}
 % subsection statistics (end)
 
 \subsection{Evaluation Protocols and Metrics} % (fold)
-\label{sub:evaluation_protocols_and_metrics}
-We split the dataset into a training and a test subset, ensuring no overlapped images or labeled identities between them. Table~\ref{tab:dataset-stats} shows the statistics of these two subsets. We divide the test identity instances into queries and galleries. For each of the $2,900$ test identities, we randomly choose one of his/her instances as the query, while the corresponding gallery set consists of two parts---all the images containing the other instances and some randomly sampled images not containing this person. Different queries have different galleries, and jointly they cover all the $6,978$ test images.
+\label{sub:ps-evaluation-protocols-and-metrics}
+We split the dataset into a training and a test subset, ensuring no overlapped images or labeled identities between them. Table~\ref{tab:ps-dataset-stats} shows the statistics of these two subsets. We divide the test identity instances into queries and galleries. For each of the $2,900$ test identities, we randomly choose one of his/her instances as the query, while the corresponding gallery set consists of two parts---all the images containing the other instances and some randomly sampled images not containing this person. Different queries have different galleries, and jointly they cover all the $6,978$ test images.
 
 To better understand how gallery size would affect the person search performance, we define a set of protocols with gallery size ranging from $50$ to $4000$. Taking gallery size of $100$ as an example, as each image approximately contains $6$ pedestrians, then our task is to find the target person among about $600$ people. This setting is comparable with existing person re-id datasets (\eg, CUHK-03, VIPeR) in terms of the number of gallery pedestrians, and is even more challenging as there could be thousands of background clutter bounding boxes distracting our attentions.
 
@@ -161,21 +161,21 @@ We employ two kinds of evaluation metrics---cumulative matching characteristics 
 % section dataset (end)
 
 \section{Experiments} % (fold)
-\label{sec:experiments}
-To evaluate the effectiveness of our approach and study the impact of various factors on person search performance, we conduct several groups of experiments on the new dataset. In this section, we first detail the baseline methods and experiment settings in Section~\ref{sub:experiment_settings}. Then we compare our joint framework with the baselines of using separate pedestrian detection and person re-identification in Section~\ref{sub:comparison_with_detection_and_re_id}. Section~\ref{sub:effectiveness_of_online_instance_matching} shows the effectiveness of our proposed Online Instance Matching (OIM) loss. At last, we present the influence of various factors, including detection recall and gallery size.
+\label{sec:ps-experiments}
+To evaluate the effectiveness of our approach and study the impact of various factors on person search performance, we conduct several groups of experiments on the new dataset. In this section, we first detail the baseline methods and experiment settings in Section~\ref{sub:ps-experiment-settings}. Then we compare our joint framework with the baselines of using separate pedestrian detection and person re-identification in Section~\ref{sub:ps-comparison-with-detection-and-re-id}. Section~\ref{sub:ps-effectiveness-of-online-instance-matching} shows the effectiveness of our proposed Online Instance Matching (OIM) loss. At last, we present the influence of various factors, including detection recall and gallery size.
 
 \subsection{Experiment Settings} % (fold)
-\label{sub:experiment_settings}
-We implement our framework based on Caffe~\cite{jia2014caffe,wang2016temporal} and py-faster-rcnn~\cite{girshick2015fast,ren2015faster}. ImageNet-pretrained ResNet-50~\cite{he2015deep} are exploited for parameters initialization. We fix the first $7\times 7$ convolution layer and the batch normalization (BN) layers as constant affine transformations in the stem part, while keep the other BN layers as normal in the identification part. The temperature scalar $\tau$ in Eq.~\eqref{eq:pi} and Eq.~\eqref{eq:qi} is set to $0.1$, the size of the circular queue is set to $5,000$. All the losses have the same loss weight. Each mini-batch consists of two scene images. The learning rate is initialized to $0.001$, dropped to $0.0001$ after $40$K iterations, and kept unchanged until the model converges at $50$K iterations.
+\label{sub:ps-experiment-settings}
+We implement our framework based on Caffe~\cite{jia2014caffe,wang2016temporal} and py-faster-rcnn~\cite{girshick2015fast,ren2015faster}. ImageNet-pretrained ResNet-50~\cite{he2015deep} are exploited for parameters initialization. We fix the first $7\times 7$ convolution layer and the batch normalization (BN) layers as constant affine transformations in the stem part, while keep the other BN layers as normal in the identification part. The temperature scalar $\tau$ in Eq.~\eqref{eq:ps-pi} and Eq.~\eqref{eq:ps-qi} is set to $0.1$, the size of the circular queue is set to $5,000$. All the losses have the same loss weight. Each mini-batch consists of two scene images. The learning rate is initialized to $0.001$, dropped to $0.0001$ after $40$K iterations, and kept unchanged until the model converges at $50$K iterations.
 
-We compare our framework with conventional methods that break down the problem into two separate tasks---pedestrian detection and person re-identification. Three pedestrian detection and five person re-id methods are used in our experiments, resulting in $15$ baseline combinations. For pedestrian detection, we directly use the off-the-shelf deep learning CCF~\cite{yang2015convolutional} detector, as well as two other detectors specifically fine-tuned on our dataset. One is the ACF~\cite{dollar2014fast}, and the other is Faster-RCNN (CNN)~\cite{ren2015faster} with ResNet-50, which is equivalent to our framework but without the identification task. The recall-precision curve of each detector on our dataset are plotted in Figure~\ref{fig:detector-pr-curves}. We also use the ground truth (GT) bounding boxes as the results of a perfect detector.
+We compare our framework with conventional methods that break down the problem into two separate tasks---pedestrian detection and person re-identification. Three pedestrian detection and five person re-id methods are used in our experiments, resulting in $15$ baseline combinations. For pedestrian detection, we directly use the off-the-shelf deep learning CCF~\cite{yang2015convolutional} detector, as well as two other detectors specifically fine-tuned on our dataset. One is the ACF~\cite{dollar2014fast}, and the other is Faster-RCNN (CNN)~\cite{ren2015faster} with ResNet-50, which is equivalent to our framework but without the identification task. The recall-precision curve of each detector on our dataset are plotted in Figure~\ref{fig:ps-detector-pr-curves}. We also use the ground truth (GT) bounding boxes as the results of a perfect detector.
 \begin{figure}[t]
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/detector-pr-curves.pdf}
 \end{center}
 \vspace{-4ex}
 \caption{Recall-Precision curves of different detectors. APs are listed in the legend.}
-\label{fig:detector-pr-curves}
+\label{fig:ps-detector-pr-curves}
 \end{figure}
 
 For person re-identification, we use several popular re-id feature representations, including DenseSIFT-ColorHist (DSIFT)~\cite{zhao2013unsupervised}, Bag of Words (BoW)~\cite{zheng2015scalable}, and Local Maximal Occurrence (LOMO)~\cite{liao2015person}. Each feature representation is used in conjunction with a specific distance metric, including Euclidean, Cosine similarity, KISSME~\cite{koestinger2012large}, and XQDA~\cite{liao2015person}, where KISSME and XQDA are trained on our dataset. Moreover, by discarding the pedestrian proposal network in our framework and training the remaining net to classify identities with Softmax loss from cropped pedestrian images, we get another baseline re-id method (IDNet). This training scheme has been exploited in~\cite{xiao2016learning} to learn discriminative re-id feature representations. In our experiments, when training IDNet with detector boxes, we found that adding background clutter as a unique class improves the result, while adding unlabeled identities does not.
@@ -184,8 +184,8 @@ The following results are reported using the protocol with gallery size equal to
 % subsection experiment_settings (end)
 
 \subsection{Comparison with Detection and Re-ID} % (fold)
-\label{sub:comparison_with_detection_and_re_id}
-We first compare our proposed person search framework (with or without using unlabeled identities) with other $15$ baseline combinations that break down the problem into separate detection and re-identification tasks. The results are summarized in Table~\ref{tab:results}. Our method outperforms the others by large margin. Comparing with CNN+IDNet, the gain comes from the joint optimization of the detection and identification parts, as well as the effective use of unlabeled identities in the OIM loss.
+\label{sub:ps-comparison-with-detection-and-re-id}
+We first compare our proposed person search framework (with or without using unlabeled identities) with other $15$ baseline combinations that break down the problem into separate detection and re-identification tasks. The results are summarized in Table~\ref{tab:ps-results}. Our method outperforms the others by large margin. Comparing with CNN+IDNet, the gain comes from the joint optimization of the detection and identification parts, as well as the effective use of unlabeled identities in the OIM loss.
 
 
 \setlength{\tabcolsep}{8pt}
@@ -222,11 +222,11 @@ Ours                   & --- & --- & \textbf{75.5} & \textbf{77.9} \\
 \vspace{-3ex}
 \caption{Comparisons between our framework and separate pedestrian detection + person re-id methods. }
 \vspace{-1ex}
-\label{tab:results}
+\label{tab:ps-results}
 \end{table}
 \setlength{\tabcolsep}{6pt}
 
-From Table~\ref{tab:results} we can also see that different detectors affect the person search performance significantly for each re-id method. Directly using an off-the-shelf detector may not be a good choice when applying existing re-id methods in the real-world person search applications. Otherwise the detector could become a bottleneck that diminishes the returns of better re-id methods.
+From Table~\ref{tab:ps-results} we can also see that different detectors affect the person search performance significantly for each re-id method. Directly using an off-the-shelf detector may not be a good choice when applying existing re-id methods in the real-world person search applications. Otherwise the detector could become a bottleneck that diminishes the returns of better re-id methods.
 
 On the other hand, the relative performance of different re-id methods are consistent across all the detectors. It implies that existing person re-id datasets could still guide us to design better feature representations, but it may lose some valuable data, such as unlabeled identities and background clutter, which come with the person search datasets.
 
@@ -234,7 +234,7 @@ Another interesting phenomenon is that although IDNet and LOMO+XQDA have similar
 % subsection comparison_with_detection_and_re_id (end)
 
 \subsection{Effectiveness of Online Instance Matching} % (fold)
-\label{sub:effectiveness_of_online_instance_matching}
+\label{sub:ps-effectiveness-of-online-instance-matching}
 \begin{figure}[t]
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/oim-vs-softmax.pdf}
@@ -242,13 +242,13 @@ Another interesting phenomenon is that although IDNet and LOMO+XQDA have similar
 \vspace{-3ex}
 \caption{Comparisons between using the proposed Online Instance Matching (OIM) and Softmax loss (with and without pretraining the Softmax classifier) in our framework. The final accuracies and mAPs are shown in the legends.}
 \vspace{1ex}
-\label{fig:oim-vs-softmax}
+\label{fig:ps-oim-vs-softmax}
 \end{figure}
-We validate the effectiveness of the proposed Online Instance Matching (OIM) loss by comparing it against Softmax baselines with or without pretraining the classifier matrix. The training identification accuracy and test person search mAP curves are demonstrated in Figure~\ref{fig:oim-vs-softmax}. First, we can see that using Softmax loss without pretraining classifier remains at low accuracy during the whole process. This phenomenon verifies our analysis in Section~\ref{sub:online_instance_matching_loss} that learning a large classifier matrix is difficult. Even with proper pretraining, the training accuracy still improves slowly, and the test mAP keeps at around $60\%$.
+We validate the effectiveness of the proposed Online Instance Matching (OIM) loss by comparing it against Softmax baselines with or without pretraining the classifier matrix. The training identification accuracy and test person search mAP curves are demonstrated in Figure~\ref{fig:ps-oim-vs-softmax}. First, we can see that using Softmax loss without pretraining classifier remains at low accuracy during the whole process. This phenomenon verifies our analysis in Section~\ref{sub:ps-oim-loss} that learning a large classifier matrix is difficult. Even with proper pretraining, the training accuracy still improves slowly, and the test mAP keeps at around $60\%$.
 
 On the contrary, the proposed OIM loss starts with a low training accuracy but converges much faster and also consistently improves the test performance. The parameter-free OIM loss learns features directly without needing to learn a big classifier matrix. Moreover, the mismatch between training and test criterion no longer exists, as both are computed based on the inner product of L2-normalized feature vectors, which represents the cosine similarity.
 
-We further evaluate the impact of OIM loss on the standard person re-identification task. We train two different base CNNs, Inception~\cite{xiao2016learning} (from scratch) and ResNet-50~\cite{he2015deep} (ImageNet pretrained), with either Softmax loss or OIM loss, on three large-scale person re-id datasets, CUHK03~\cite{li2014deepreid}, Market1501~\cite{zheng2015scalable}, and Duke~\cite{zheng2017unlabeled,ristani2016MTMC}. Following their own protocols, we evaluate the CMC top-1 accuracy of using different loss functions, as listed in Table~\ref{tab:oim-reid}. OIM loss consistently outperforms Softmax loss, regardless of which base CNN is used. We refer readers to Open-ReID\footnote{\url{https://github.com/Cysu/open-reid}} benchmarks for more details.
+We further evaluate the impact of OIM loss on the standard person re-identification task. We train two different base CNNs, Inception~\cite{xiao2016learning} (from scratch) and ResNet-50~\cite{he2015deep} (ImageNet pretrained), with either Softmax loss or OIM loss, on three large-scale person re-id datasets, CUHK03~\cite{li2014deepreid}, Market1501~\cite{zheng2015scalable}, and Duke~\cite{zheng2017unlabeled,ristani2016MTMC}. Following their own protocols, we evaluate the CMC top-1 accuracy of using different loss functions, as listed in Table~\ref{tab:ps-oim-reid}. OIM loss consistently outperforms Softmax loss, regardless of which base CNN is used. We refer readers to Open-ReID\footnote{\url{https://github.com/Cysu/open-reid}} benchmarks for more details.
 \setlength{\tabcolsep}{8pt}
 \begin{table}
 \begin{center}
@@ -268,7 +268,7 @@ ResNet-50 & OIM & \textbf{77.5} & \textbf{82.1} & \textbf{68.1} \\
 \vspace{-3ex}
 \caption{CMC top-1 accuracy (\%) of using Softmax or OIM loss for standard person re-id task.}
 \vspace{-1ex}
-\label{tab:oim-reid}
+\label{tab:ps-oim-reid}
 \end{table}
 \setlength{\tabcolsep}{6pt}
 
@@ -277,23 +277,23 @@ ResNet-50 & OIM & \textbf{77.5} & \textbf{82.1} & \textbf{68.1} \\
 \begin{subfigure}[t]{0.6\linewidth}
   \includegraphics[width=\linewidth]{figures/person_search/subsampling.pdf}
   \caption{Sub-sampling size for the OIM loss}
-  \label{fig:subsampling}
+  \label{fig:ps-subsampling}
 \end{subfigure}
 \begin{subfigure}[t]{0.6\linewidth}
   \includegraphics[width=\linewidth]{figures/person_search/factor-recall.pdf}
   \caption{Detection (LOMO+XQDA) recall}
-  \label{fig:factor-recall}
+  \label{fig:ps-factor-recall}
 \end{subfigure}
 \begin{subfigure}[t]{0.6\linewidth}
   \includegraphics[width=\linewidth]{figures/person_search/factor-gallery-size.pdf}
   \caption{Test gallery size}
-  \label{fig:factor-gallery-size}
+  \label{fig:ps-factor-gallery-size}
 \end{subfigure}
 \end{center}
 % \vspace{-2ex}
 \caption{Test mAP curves of different factors. The final mAPs are shown in the legend if applicable.}
 \end{figure*}
-\textbf{Sub-sampling the identities.} As the number of identities increases, the computation time of the OIM loss could become the bottleneck of the whole system. Thus we proposed in Section~\ref{sub:online_instance_matching_loss} to approximate Eq.~\eqref{eq:pi} and Eq.~\eqref{eq:qi} by sub-sampling both the labeled and unlabeled identities in the denominators. We validate this approach here by training the framework with sub-sampling size of $10$, $100$, and $1000$. The test mAP curves are demonstrated in Figure~\ref{fig:subsampling}. In general, sub-sampling a small number of identities relaxes the training objective, which leads to slightly inferior performance but much faster convergence rate. This indicates that our framework is scalable to larger datasets with even more identities by using proper sub-sampling rate.
+\textbf{Sub-sampling the identities.} As the number of identities increases, the computation time of the OIM loss could become the bottleneck of the whole system. Thus we proposed in Section~\ref{sub:ps-oim-loss} to approximate Eq.~\eqref{eq:ps-pi} and Eq.~\eqref{eq:ps-qi} by sub-sampling both the labeled and unlabeled identities in the denominators. We validate this approach here by training the framework with sub-sampling size of $10$, $100$, and $1000$. The test mAP curves are demonstrated in Figure~\ref{fig:ps-subsampling}. In general, sub-sampling a small number of identities relaxes the training objective, which leads to slightly inferior performance but much faster convergence rate. This indicates that our framework is scalable to larger datasets with even more identities by using proper sub-sampling rate.
 
 \setlength{\tabcolsep}{8pt}
 \begin{table}
@@ -311,19 +311,19 @@ mAP (\%) & 54.2 & 62.1 & 75.5 & 75.3 & \textbf{75.7} \\
 \vspace{-3ex}
 \caption{Comparisons among different dimensions of L2-normalized feature subspace. N/A means that we directly use the L2-normalized $2048$-d global pooled feature vector.}
 \vspace{-1ex}
-\label{tab:embed-dim}
+\label{tab:ps-embed-dim}
 \end{table}
 \setlength{\tabcolsep}{6pt}
 
-\textbf{Low-dimensional subspace.} We further investigate how the dimension of the L2-normalized feature vector affects the person search performance. The results are summarized in Table~\ref{tab:embed-dim}. We observe that using the $2048$-d global pooled feature vector directly with L2-normalization leads to lower training error, but its test performance is $20\%$ worse. This suggests that projecting the features into a proper low-rank subspace is very important to regularize the network training. In our experiments, $256$ to $1024$ dimensions have similar test performance, and we choose $256$-d to accelerate the computation of feature distances.
+\textbf{Low-dimensional subspace.} We further investigate how the dimension of the L2-normalized feature vector affects the person search performance. The results are summarized in Table~\ref{tab:ps-embed-dim}. We observe that using the $2048$-d global pooled feature vector directly with L2-normalization leads to lower training error, but its test performance is $20\%$ worse. This suggests that projecting the features into a proper low-rank subspace is very important to regularize the network training. In our experiments, $256$ to $1024$ dimensions have similar test performance, and we choose $256$-d to accelerate the computation of feature distances.
 % subsection effectiveness_of_online_instance_matching (end)
 
 \subsection{Factors for Person Search} % (fold)
-\label{sub:factors_for_person_search}
-\textbf{Detection Recall.} We investigate how detection recalls would affect the person search performance by using LOMO+XQDA as the re-id method and setting different thresholds on detection scores. A lower threshold reduces misdetections (increases the recall) but results in more false alarms. We choose the recall rates ranging from $30\%$ to the maximum value of each detector. The final person search mAP under each setting is demonstrated in Figure~\ref{fig:factor-recall}. An interesting observation is that higher recall does not necessarily lead to higher person search performance, which means re-id method could still get confused on some false alarms. This again indicates that we should not focus solely on training re-id methods with manually cropped pedestrians, but should consider the detections jointly under the person search problem setting.
+\label{sub:ps-factors-for-person-search}
+\textbf{Detection Recall.} We investigate how detection recalls would affect the person search performance by using LOMO+XQDA as the re-id method and setting different thresholds on detection scores. A lower threshold reduces misdetections (increases the recall) but results in more false alarms. We choose the recall rates ranging from $30\%$ to the maximum value of each detector. The final person search mAP under each setting is demonstrated in Figure~\ref{fig:ps-factor-recall}. An interesting observation is that higher recall does not necessarily lead to higher person search performance, which means re-id method could still get confused on some false alarms. This again indicates that we should not focus solely on training re-id methods with manually cropped pedestrians, but should consider the detections jointly under the person search problem setting.
 
-\textbf{Gallery size.} Person search could be more challenging as the gallery size increases. We evaluate several methods under different test gallery sizes from $50$ to full set of $6,978$ images, following the protocols defined in Section~\ref{sub:evaluation_protocols_and_metrics}. The test mAPs are demonstrated in Figure~\ref{fig:factor-gallery-size}. Note that for each test query, the corresponding gallery images are randomly sampled from the whole set. All test images are covered even with small gallery sizes. The performance gaps among different methods are reduced as the gallery size increases, indicating all the methods may suffer from some common hard samples, and we could further improve the performance with hard example minings.
+\textbf{Gallery size.} Person search could be more challenging as the gallery size increases. We evaluate several methods under different test gallery sizes from $50$ to full set of $6,978$ images, following the protocols defined in Section~\ref{sub:ps-evaluation-protocols-and-metrics}. The test mAPs are demonstrated in Figure~\ref{fig:ps-factor-gallery-size}. Note that for each test query, the corresponding gallery images are randomly sampled from the whole set. All test images are covered even with small gallery sizes. The performance gaps among different methods are reduced as the gallery size increases, indicating all the methods may suffer from some common hard samples, and we could further improve the performance with hard example minings.
 
 \section{Conclusion} % (fold)
-\label{sec:conclusion}
+\label{sec:ps-conclusion}
 In this paper, we propose a new deep learning framework for person search. It jointly handles detection and identification in a single CNN. An Online Instance Matching loss function is proposed to train the network effectively. Its non-parametric nature enables faster yet better convergence, which is validated through series of experiments.
