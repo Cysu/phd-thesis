@@ -279,7 +279,7 @@
 \def\beforebibliography{
     \def\thechapter{\ }
     \def\chaptername{Bibliography}
-%    \addcontentsline{toc}{chapter}{Bibliography}
+    \addcontentsline{toc}{chapter}{Bibliography}
     \markboth{\sl Bibliography}{\sl Bibliography}}
 %   }
 %\def\ps@headings{
@@ -349,6 +349,13 @@
 
 \newcommand{\argmin}{\mathop{\mathrm{arg\,min}}}
 \newcommand{\argmax}{\mathop{\mathrm{arg\,max}}}
+
+\newtheorem{theorem}{Theorem}[chapter]
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{proposition}[theorem]{Proposition}
 
 \makeatletter
 \DeclareRobustCommand\onedot{\futurelet\@let@token\@onedot}

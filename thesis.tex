@@ -14,12 +14,14 @@
 \input{mainmatter/multi_domain.tex}
 \input{mainmatter/person_search.tex}
 \input{mainmatter/conclusions.tex}
-%\clearpage
-\appendix
-%\input{Appendix/APX}    % Appendix A - F
 
-\begin{singlespace}
+% Appendix
+% \clearpage
+% \appendix
+% \input{Appendix/APX}    % Appendix A - F
+
 % Bibliography
+\begin{singlespace}
 \clearpage \beforebibliography
 
 \lhead[\thepage]{\fancyplain{}{\footnotesize \rightmark}}
@@ -27,20 +29,8 @@
 \footnotesize\leftmark}]{\fancyplain{}{\thepage}} \lfoot[]{} \cfoot[]{} \rfoot[]{}
 
 \bibliographystyle{IEEEtran}
-%\bibliographystyle{phaip}
-%\bibliographystyle{kluwer}
-%\bibliographystyle{apalike}
-%\bibliographystyle{apacite}
-%\bibliographystyle{abbrv}
-%\bibliographystyle{IEEEannot}
-%\pagestyle{plain}
-
-\small \addcontentsline{toc}{chapter}{Bibliography}
+\small
 \bibliography{backmatter/references}
 \end{singlespace}
-
-%% Appendix
-%\clearpage
-%\appendix
 
 \end{document}
