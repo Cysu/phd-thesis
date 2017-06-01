@@ -1,14 +1,14 @@
 \chapter{Multi-Domain Person Re-identification}
 \label{ch:multi-domain}
 
-\newcommand{\specialcell}[2][c]{\begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 
-\section{Introduction} % (fold)
-\label{sec:md-introduction}
+Learning generic and robust feature representations with data from multiple domains for the same problem is of great value, especially for the problems that have multiple datasets but none of them are large enough to provide abundant data variations. In this chapter, we present a pipeline for learning deep feature representations from multiple domains with CNNs. When training a CNN with data from all the domains, some neurons learn representations shared across several domains, while some others are effective only for a specific one. Based on this important observation, we propose a Domain Guided Dropout algorithm to improve the feature learning procedure. Experiments show the effectiveness of our pipeline and the proposed algorithm. Our methods on the person re-identification problem outperform state-of-the-art methods on multiple datasets by large margins.
 
+The contribution of our work is three-fold. First, we present a pipeline for learning generic feature representations from multiple domains that perform well on all of them. This enables us to learn better features from multiple datasets for the same problem. Second, we propose Domain Guided Dropout to discard useless neurons for each domain, which improves the performance of the CNN. At last, our method outperforms state-of-the-arts on multiple person re-identification datasets by large margins. We observe that learning feature representations by utilizing data from multiple datasets improve the performance significantly, and the largest gain is 46\% on the PRID dataset. Extensive experiments validate our proposed method and the internal mechanism of the method is studied in details.
+
+\section{Related Work} % (fold)
+\label{sec:md-related-work}
 In computer vision, a \emph{domain} often refers to a dataset where samples follow the same underlying data distribution. It is common that multiple datasets with different data distributions are proposed to target the same or similar problems. Multi-domain learning aims to solve the problem with datasets across different domains simultaneously by using all the data they provide. As deep learning arises in the recent years, learning good feature representations achieves great success in many research fields and real-world applications. The success of deep learning is driven by the emergence of large-scale training data, which makes multi-domain learning an interesting problem. Many studies~\cite{donahue2014decaf,azizpour2015generic,oquab2014learning} have shown that fine-tuning a deep model pretrained on a large-scale dataset (\eg ImageNet~\cite{deng2009imagenet}) is effective for other related domains and tasks. However, in many specific areas, there is no such large-scale dataset for learning robust and generic feature representations. Nonetheless, different research groups have proposed many smaller datasets. It is necessary to develop an effective algorithm that jointly utilizes all of them to learn generic feature representations.
-
-Another interesting aspect of multi-domain learning is that it enriches the data variety because of the domain discrepancies. Limited by various conditions, data collected by a research group might only include certain types of variations. Take the person re-identification~\cite{ajakan2014domain,li2014deepreid} problem as an example, pedestrian images are usually captured in different scenes (\eg, campus, markets, and streets), as shown in Figure~\ref{fig:md-reid-datasets}. Images in CUHK01~\cite{li2013locally} and CUHK03~\cite{li2014deepreid} are captured on campus, where many students wear backpacks. PRID~\cite{hirzer11a} contains pedestrians in street views, where crosswalks appear frequently in the dataset. Images in VIPeR~\cite{gray2007evaluating} suffer from significant resolution changes across different camera views. Each of such datasets is biased and contains only a subset of possible data variations, which is not sufficient for learning generic feature representations. Combining them together can diversify the training data, thus makes the learned features more robust.
 
 \begin{figure}[t]
 \begin{center}
@@ -18,19 +18,7 @@ Another interesting aspect of multi-domain learning is that it enriches the data
 \label{fig:md-reid-datasets}
 \end{figure}
 
-In this paper, we present a pipeline for learning generic feature representations from multiple domains that are effective on all of them simultaneously. For concrete demonstration, we target the person re-identification problem, but the method itself would be generalized to other problems with datasets of multiple domains. As learning features from a large-scale classification dataset is proved to be effective~\cite{sun2014deep1}, we first mix all the domains together and train a Convolutional Neural Network (CNN) to recognize person identities (IDs). The CNN model we designed consists of several BN-Inception~\cite{szegedy2014going,ioffe2015batch} modules, and its capacity well fits to the scale of the mixed dataset. This carefully designed CNN model provides us a fairly strong baseline, but the simple joint learning scheme does not take full advantages of the variations of multiple domains.
-
-Intuitively, neurons that are effective for one domain could be useless for another domain because of the presence of domain biases. For example, only the i-LIDS dataset contains pedestrians with luggages, thus the neurons that capture luggage features are of no use when recognizing people from other domains.
-
-Based on this observation, we propose \emph{Domain Guided Dropout} --- a simple yet effective method of muting non-related neurons for each domain. Different from the standard Dropout~\cite{hinton2012improving}, which treats all the neurons equally, our method assigns each neuron a specific dropout rate for each domain according to its effectiveness on that domain. The proposed Domain Guided Dropout has two schemes, a deterministic scheme, and a stochastic scheme. After the baseline model is trained jointly with datasets of all the domains, we replace the standard Dropout with the deterministic Domain Guided Dropout and resume the training for several epochs. We observe that the proposed dropout scheme consistently improves the performance on all the domains after several epochs, especially on the smaller-scale ones. This step produces better generic feature representations that are effective on all the domains simultaneously. We further fine-tune the net with stochastic Domain Guided Dropout on each domain separately to obtain the best possible results.
-
-The contribution of our work is three-fold. First, we present a pipeline for learning generic feature representations from multiple domains that perform well on all of them. This enables us to learn better features from multiple datasets for the same problem. Second, we propose Domain Guided Dropout to discard useless neurons for each domain, which improves the performance of the CNN. At last, our method outperforms state-of-the-arts on multiple person re-identification datasets by large margins. We observe that learning feature representations by utilizing data from multiple datasets improve the performance significantly, and the largest gain is 46\% on the PRID dataset. Extensive experiments validate our proposed method and the internal mechanism of the method is studied in details.
-
-% section introduction (end)
-
-
-\section{Related Work} % (fold)
-\label{sec:md-related_work}
+Another interesting aspect of multi-domain learning is that it enriches the data variety because of the domain discrepancies. Limited by various conditions, data collected by a research group might only include certain types of variations. Take the person re-identification~\cite{ajakan2014domain,li2014deepreid} problem as an example, pedestrian images are usually captured in different scenes (\eg, campus, markets, and streets), as shown in Figure~\ref{fig:md-reid-datasets}. Images in CUHK01~\cite{li2013locally} and CUHK03~\cite{li2014deepreid} are captured on campus, where many students wear backpacks. PRID~\cite{hirzer11a} contains pedestrians in street views, where crosswalks appear frequently in the dataset. Images in VIPeR~\cite{gray2007evaluating} suffer from significant resolution changes across different camera views. Each of such datasets is biased and contains only a subset of possible data variations, which is not sufficient for learning generic feature representations. Combining them together can diversify the training data, thus makes the learned features more robust.
 
 In recent years, training deep neural networks with multiple domains has been explored. Feature representations learned by Convolutional Neural Networks have shown their effectiveness in a wide range of visual recognition tasks~\cite{krizhevsky2012imagenet,girshick2014rich,long2015fully,chu2016structured,yang2016end,kang2016object}. Long~\etal~\cite{long2015learning} incorporated the multiple kernel variant of Maximum Mean Discrepancy (MMD) objective for regularizing the training of neural networks. Ganin~\etal~\cite{ganin2014unsupervised} proposed to reduce the distribution mismatch between the source and target domains by reversing the gradients of the domain classification loss, which is also utilized by~\cite{tzeng2015simultaneous} with a softlabel matching loss to transfer task information. Most of these methods aim at finding a common feature space that is domain invariant. However, our approach allows the representation to have disjoint components that are domain specific, while also learning a shared representation.
 
@@ -38,34 +26,42 @@ As deep neural networks usually contain millions of parameters, it is of great i
 
 While the standard Dropout algorithm treats all the neurons equally with a fixed probability, Ba~\etal~\cite{ba2013adaptive} proposed an adaptive dropout scheme by learning a binary belief network to predict the dropout probability for each neuron. In practice, they use the response of each neuron to compute the dropout probability for itself. Our approach significantly differs from this method, as we propose to train a CNN from multiple domains, and utilize the domain information to guide the dropout procedure.
 
-We target the person re-identification (Re-ID) problem in this work, which is very challenging and draws much attention in recent years~\cite{wang2007shape,li2015locality,zhang2015bit,xu2013human,liu2014fly,li2015multi}. Existing Re-ID methods mainly address the problem from two aspects: finding more powerful feature representations and learning better metrics. Zhao~\etal~\cite{zhao2013unsupervised,zhao2013person,zhao2014learning} proposed to combine SIFT features with color histogram as features. In deep learning literature, Li~\etal~\cite{li2014deepreid} and Ahmed~\etal~\cite{ahmed2015improved} designed CNN models specifically to the Re-ID task and achieved good performance on large-scale datasets. They trained the network with pairs of pedestrian images and adopted the verification loss function. Ding~\etal~\cite{ding2015deep} utilized triplet samples for training features that maximize relative distance between the pair of same person and the pair of different people in the triplets. Apart from the feature learning methods, a large number of metric learning algorithms~\cite{paisitkriangkrai2015learning,weinberger2005distance,xiong2014person,davis2007information,mcfee2010metric,koestinger2012large} have also been proposed to solve the Re-ID problem from a complementary perspective. Some recent works addressed the problem of mismatch between traditional Re-ID and real application scenarios. Liao~\etal~\cite{liao2014open} proposed a database for open-set Re-ID. Zheng~\etal~\cite{zheng2015scalable} treated Re-ID as an image search problem and introduced a large-scale dataset. Xu~\etal~\cite{xu2014person} raised the problem of searching a person inside whole images rather than cropped bounding boxes.
+For concrete demonstration, we target the person re-identification problem, but the method itself would be generalized to other problems with datasets of multiple domains. Existing Re-ID methods mainly address the problem from two aspects: finding more powerful feature representations and learning better metrics. Zhao~\etal~\cite{zhao2013unsupervised,zhao2013person,zhao2014learning} proposed to combine SIFT features with color histogram as features. In deep learning literature, Li~\etal~\cite{li2014deepreid} and Ahmed~\etal~\cite{ahmed2015improved} designed CNN models specifically to the Re-ID task and achieved good performance on large-scale datasets. They trained the network with pairs of pedestrian images and adopted the verification loss function. Ding~\etal~\cite{ding2015deep} utilized triplet samples for training features that maximize relative distance between the pair of same person and the pair of different people in the triplets. Apart from the feature learning methods, a large number of metric learning algorithms~\cite{paisitkriangkrai2015learning,weinberger2005distance,xiong2014person,davis2007information,mcfee2010metric,koestinger2012large} have also been proposed to solve the Re-ID problem from a complementary perspective. Some recent works addressed the problem of mismatch between traditional Re-ID and real application scenarios. Liao~\etal~\cite{liao2014open} proposed a database for open-set Re-ID. Zheng~\etal~\cite{zheng2015scalable} treated Re-ID as an image search problem and introduced a large-scale dataset. Xu~\etal~\cite{xu2014person} raised the problem of searching a person inside whole images rather than cropped bounding boxes.
+% section related-work (end)
 
-% section related_work (end)
-
-
-\section{Method} % (fold)
-\label{sec:md-method}
-
+\section{Method Overview} % (fold)
+\label{sec:md-overview}
 \begin{figure*}[t]
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/multi_domain/overview.pdf}
 \end{center}
-\caption{Overview of our pipeline. For the person re-identification problem, we first train a CNN jointly on all six domains. Then we analyze the effectiveness of each neuron on each domain. For example, some may capture the luggages that only appear in domain $A$, while some others may capture the red clothes shared across different domains. We propose a Domain Guided Dropout algorithm to discard useless neurons for each domain during the training process, which drives the CNN to learn better feature representations on all the domains simultaneously.}
+\caption{Overview of our framework. For the person re-identification problem, we first train a CNN jointly on all six domains. Then we analyze the effectiveness of each neuron on each domain. For example, some may capture the luggages that only appear in domain $A$, while some others may capture the red clothes shared across different domains. We propose a Domain Guided Dropout algorithm to discard useless neurons for each domain during the training process, which drives the CNN to learn better feature representations on all the domains simultaneously.}
 \label{fig:md-overview}
 \end{figure*}
 
-Our proposed pipeline for learning CNN features from multiple domains consists of several stages. As shown in Figure~\ref{fig:md-overview}, we first mix the data and labels from all the domains together, and train a carefully designed CNN from scratch on the joint dataset with a single softmax loss. This pretraining step produces a strong baseline model that works on all the domains simultaneously. Next, for each domain, we perform the forward pass on all its samples and compute for each neuron its average impact on the objective function. Then we replace the standard Dropout layer with the proposed Domain Guided Dropout layer, and continue to train the CNN model for several more epochs. With the guidance of which neurons being effective for each domain, the CNN learns more discriminative features for all of them. At last, if we want to obtain feature representations for a specific domain, the CNN could be further fine-tuned on it, again with the Domain Guided Dropout to improve the performance. In this section, we detail these stages, and compare our design choices with other alternatives.
+In this chapter, we present a framework for learning generic feature representations from multiple domains that are effective on all of them simultaneously. Our proposed pipeline consists of several stages, as shown in Figure~\ref{fig:md-overview}. Since learning features from a large-scale classification dataset is proved to be effective~\cite{sun2014deep1}, we first mix all the domains together and train a Convolutional Neural Network (CNN) to recognize person identities (IDs), which is formulated as a \emph{Joint Single Task Learning} problem.
 
-\subsection{Problem formulation} % (fold)
-\label{sub:md-problem-formulation}
+The CNN model we designed consists of several BN-Inception~\cite{szegedy2014going,ioffe2015batch} modules, and its capacity well fits to the scale of the mixed dataset. This carefully designed CNN model provides us a fairly strong baseline, but the simple joint learning scheme does not take full advantages of the variations of multiple domains.
 
-Although the pipeline itself is not limited to any specific scope, we target the person re-identification problem for concrete demonstration. The problem can be formulated as follows. Suppose we have $D$ domains, each of which consists of $N_i$ images of $M_i$ different people. Let $\{(x_i^{(j)}, y_i^{(j)})_{j=1}^{N_i}\}_{i=1}^{D}$ denote all training samples, where $x_i^{(j)}$ is the $j$-th image of the $i$-th domain, and $y_i^{(j)} \in \{1,2,\dots,M_i\}$ is the identity of the corresponding person. Our goal is to learn a generic feature extractor $g(\cdot)$ that has similar outputs for images of the same person and dissimilar outputs for different people. During the test phase, given a probe pedestrian image and a set of gallery images, we use $g(\cdot)$ to extract features from all of them, and rank the gallery images according to their Euclidean distances to the probe image in the feature space. For the training phase, there are several frameworks that use pairwise~\cite{li2014deepreid,ahmed2015improved} or triplet~\cite{schroff2015facenet} inputs for learning feature embeddings. In our approach, we train a CNN to recognize the identity of each person, which is also adopted in the face verification work~\cite{sun2014deep1}.
+We observed an interesting phenomenon for the units of the fully connected layers. Neurons that are effective for one domain could be useless for another domain because of the presence of domain biases. For example, in Figure~\ref{fig:md-reid-datasets} only the i-LIDS dataset contains pedestrians with luggages, thus the neurons that capture luggage features are of no use when recognizing people from other domains.
 
-% subsection problem_formulation (end)
+Based on this observation, we propose \emph{Domain Guided Dropout} --- a simple yet effective method of muting non-related neurons for each domain. Different from the standard Dropout~\cite{hinton2012improving}, which treats all the neurons equally, our method assigns each neuron a specific dropout rate for each domain according to its effectiveness on that domain. To be specific, for each domain, we perform the forward pass on all its samples and compute for each neuron its average impact on the identification loss function. Then we replace the standard Dropout layer with a proposed deterministic Domain Guided Dropout layer, and continue to train the CNN model for several more epochs. With the guidance of which neurons being effective for each domain, the CNN learns more discriminative features for all of them. At last, if we want to obtain feature representations for a specific domain, the CNN could be further fine-tuned on it, with a proposed stochastic Domain Guided Dropout to improve the performance.
 
-\subsection{Joint learning objective and the CNN structure} % (fold)
-\label{sub:md-joint-learning-and-cnn-structure}
+In the following sections, we detail these stages, and compare our design choices with other alternatives.
+% section overview (end)
 
+
+\section{Joint Single Task Learning} % (fold)
+\label{sec:md-method}
+Although our framework itself is not limited to any specific scope, we target the person re-identification problem for concrete demonstration. This section formulates the problem, defines the objective functions, and introduces the network architecture.
+
+\subsection{Problem Formulation} % (fold)
+\label{sub:md-prob-formulation}
+The problem can be formulated as follows. Suppose we have $D$ domains, each of which consists of $N_i$ images of $M_i$ different people. Let $\{(x_i^{(j)}, y_i^{(j)})_{j=1}^{N_i}\}_{i=1}^{D}$ denote all training samples, where $x_i^{(j)}$ is the $j$-th image of the $i$-th domain, and $y_i^{(j)} \in \{1,2,\dots,M_i\}$ is the identity of the corresponding person. Our goal is to learn a generic feature extractor $g(\cdot)$ that has similar outputs for images of the same person and dissimilar outputs for different people. During the test phase, given a probe pedestrian image and a set of gallery images, we use $g(\cdot)$ to extract features from all of them, and rank the gallery images according to their Euclidean distances to the probe image in the feature space. For the training phase, there are several frameworks that use pairwise~\cite{li2014deepreid,ahmed2015improved} or triplet~\cite{schroff2015facenet} inputs for learning feature embeddings. In our approach, we train a CNN to recognize the identity of each person, which is also adopted in the face verification work~\cite{sun2014deep1}.
+% subsection md-prob-formulation (end)
+
+\subsection{Objectives Functions} % (fold)
+\label{sub:md-jstl-objectives}
 When mixing all the $D$ domains together, a straightforward solution is to employ a multi-task objective function, \ie, learning $D$ softmax classifiers $f_1, f_2, \dots, f_D$ and a shared features extractor $g$ that minimize
 \begin{equation} \label{eq:md-multi-task-objfunc}
     \argmin_{f_1,f_2,\dots,f_D,g} \sum_{i=1}^D \sum_{j=1}^{N_i} \mathcal{L}\left( f_i(g(x_i^{(j)})), y_i^{(j)} \right),
@@ -78,9 +74,13 @@ However, since different person re-identification datasets usually have totally 
 \end{equation}
 
 Compared with the multi-task formulation, this single-task learning scheme forces the network to simultaneously distinguish people from all domains. The feature representations capture two types of information: domain biases (\eg, background clutter, lighting, \etc) as well as person appearance and attributes. If the data distributions of two domains differ a lot, it would be easy to separate the persons of the two domains by observing only the domain biases. However, when these biases are not significant enough, the network is required to learn discriminative person-related features to make the decisions. Thus the single-task objective fits better to our setting and is chosen for this work.
+% subsection md-jstl-objectives (end)
 
+\subsection{Network Architectures} % (fold)
+\label{sub:md-network-arch}
 Since pedestrian images are usually quite small and are not of square-shapes, it is not appropriate to directly use the ImageNet pretrained CNN models, which are trained with object images of high resolution and abundant details. Thus we propose to design a network structure that well fits our problem scale. Inspired by~\cite{ioffe2015batch,simonyan2014very}, we build a CNN with three preceding $3\times 3$ convolutional layers followed by six Inception modules and two fully connected layers. Detailed structures are listed in Table~\ref{tab:md-cnn-structure}. The Batch Normalization (BN) layers are employed before each ReLU layer, which accelerate the convergence process and avoid manually tweaking the initialization of weights and biases. For training the CNN from scratch, we randomly dropout 50\% neurons of the fc7 layer. The initial learning rate is set to 0.1 and is decreased by 4\% for every 4 epochs until it reaches 0.0005. The learning rate is then fixed at this value for a few more epochs until convergence.
 
+\newcommand{\specialcell}[2][c]{\begin{tabular}[#1]{@{}c@{}}#2\end{tabular}}
 \begin{table*}[t]
 \small
 \begin{center}
@@ -119,11 +119,10 @@ fc8 & & $M$ & & & & & & \\
 \caption{The structure of our proposed CNN for person re-identification}
 \label{tab:md-cnn-structure}
 \end{table*}
-% subsection md-joint-learning-and-cnn-structure (end)
+% section md-network-arch (end)
 
-\subsection{Domain Guided Dropout} % (fold)
-\label{sub:md-guided-dropout}
-
+\section{Domain Guided Dropout} % (fold)
+\label{sec:md-guided-dropout}
 Given the CNN model pretrained by using the mixed dataset, we identify for each domain which neurons are effective. For each domain sample, we define the impact of a particular neuron on this sample as the gain of the loss function when we remove the neuron. Specifically, let $g(x)\in \mathbb{R}^d$ denote the $d$-dimensional CNN feature vector of an image $x$. The impact score of the $i$-th $(i\in\{1,2,\dots,d\})$ neuron on this image sample is defined as
 \begin{equation} \label{eq:md-true-scores}
    s_i=\mathcal{L}(g(x)_{\setminus i}) - \mathcal{L}(g(x)),
@@ -169,15 +168,11 @@ Here we use the sigmoid function to map a impact score to $(0,1)$, and $T$ is th
 We apply the Domain Guided Dropout to the fc7 neurons and resume the training process. The network's learning rate policy is changed to decay polynomially from 0.01 with the power parameter set to 0.5. The whole network is trained for 10 more epochs.
 
 During the test stage, for the deterministic scheme, the neurons are also discarded if their impacts are no greater than zero. While for the stochastic scheme, we keep all the neuron responses but scale the $i$-th one with $1/(1+e^{-s_i/T})$.
-
-% subsection guided_dropout (end)
-
-% section method (end)
+% section guided_dropout (end)
 
 
 \section{Experiments} % (fold)
 \label{sec:md-experiments}
-
 We conducted experiments on several popular person re-identification datasets. In this section, we first detail the characteristics of each dataset and the test protocols we followed in Section~\ref{sub:md-datasets-and-protocols}. Then we compare the results of our approach with state-of-the-arts, showing the effectiveness of our multi-domain deep learning pipeline in Section~\ref{sub:md-comparison-with-state-of-the-art-results}. Section~\ref{sub:md-effectiveness-of-the-guided-dropout-module} analyzes the Domain Guided Dropout module through a series of experiments, and discusses its properties based on the results. At last, we present some figures that help us understand the underlying mechanisms. The code is publicly available on GitHub\footnote{\url{https://github.com/Cysu/person_reid}}.
 
 \subsection{Datasets and protocols} % (fold)
@@ -301,7 +296,7 @@ We further investigate how does the deterministic Domain Guided Dropout change t
 
 % section experiments (end)
 
-\section{Conclusion} % (fold)
-\label{sec:md-conclusion}
+\section{Conclusions} % (fold)
+\label{sec:md-conclusions}
 
-In this paper, we raise the question of learning generic and robust CNN feature representations from multiple domains. An effective pipeline is presented, and a Domain Guided Dropout algorithm is proposed to improve the feature learning process. We conduct extensive experiments on multiple person re-identification datasets to validate our method and investigate the internal mechanisms in details. Moreover, our results outperform state-of-the-art ones by large margin on most of the datasets, which demonstrates the effectiveness of the proposed method.
+In this chapter, we raise the question of learning generic and robust CNN feature representations from multiple domains. An effective pipeline is presented, and a Domain Guided Dropout algorithm is proposed to improve the feature learning process. We conduct extensive experiments on multiple person re-identification datasets to validate our method and investigate the internal mechanisms in details. Moreover, our results outperform state-of-the-art ones by large margin on most of the datasets, which demonstrates the effectiveness of the proposed method.
