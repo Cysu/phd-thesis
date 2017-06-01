@@ -1,9 +1,16 @@
-\chapter{From Person Re-identification to Person Search}
+\chapter{From Person Re-Identification to Person Search}
 \label{ch:person-search}
 
-\section{Introduction} % (fold)
-\label{sec:ps-introduction}
-Person re-identification (re-id)~\cite{zajdel2005keeping,gheissari2006person} aims at matching a target person with a gallery of pedestrian images. It has many video surveillance applications, such as finding criminals~\cite{wang2013intelligent}, cross-camera person tracking~\cite{yu2013harry}, and person activity analysis~\cite{loy2009multi}. The problem is challenging because of complex variations of human poses, camera viewpoints, lighting, occlusion, resolution, background clutter, \etc, and thus draws much research attention in recent years~\cite{zheng2015scalable,liao2015person,paisitkriangkrai2015learning,xiao2016learning,li2014deepreid,chu2016structured}.
+Existing person re-identification benchmarks and methods mainly focus on matching cropped pedestrian images between queries and candidates. However, it is different from real-world scenarios where the annotations of pedestrian bounding boxes are unavailable and the target person needs to be searched from a gallery of whole scene images. To close the gap, we propose a new deep learning framework for person search. Instead of breaking it down into two separate tasks --- pedestrian detection and person re-identification, we jointly handle both aspects in a single convolutional neural network. An Online Instance Matching (OIM) loss function is proposed to train the network effectively, which is scalable to datasets with numerous identities. To validate our approach, we collect and annotate a large-scale benchmark dataset for person search. It contains $18,184$ images, $8,432$ identities, and $96,143$ pedestrian bounding boxes. Experiments show that our framework outperforms other separate approaches, and the proposed OIM loss function converges much faster and better than the conventional Softmax loss.
+
+The contribution of this chapter is three-fold. First, we propose a new deep learning framework to search a target person from a gallery of whole scene images. Instead of simply combining the pedestrian detectors and person re-id methods, we jointly optimize both objectives in a single CNN and they better adapt with each other. Second, we propose an Online Instance Matching loss function to learn identification features more effectively, which enables our framework to be scalable to large datasets with numerous identities. Together with the fast inference speed, our framework is much closer to the real-world application requirements. At last, we collect and annotate a large-scale benchmark dataset for person search, covering hundreds of scenes from street and movie snapshots. The dataset contains $18,184$ images, $8,432$ identities, and $96,143$ pedestrian bounding boxes. We validate the effectiveness of our approach comparing against other baselines on this dataset. The dataset and code are made public to facilitate further research\footnote{\url{https://github.com/ShuangLI59/person_search}}.
+
+
+\section{Related Work} % (fold)
+\label{sec:ps-related-work}
+\textbf{Person re-identification.} Person re-identification (re-id)~\cite{zajdel2005keeping,gheissari2006person} aims at matching a target person with a gallery of pedestrian images. It has many video surveillance applications, such as finding criminals~\cite{wang2013intelligent}, cross-camera person tracking~\cite{yu2013harry}, and person activity analysis~\cite{loy2009multi}. The problem is challenging because of complex variations of human poses, camera viewpoints, lighting, occlusion, resolution, background clutter, \etc, and thus draws much research attention in recent years~\cite{zheng2015scalable,liao2015person,paisitkriangkrai2015learning,xiao2016learning,li2014deepreid,chu2016structured}.
+
+Early person re-identification methods addressed the problem by manually designing discriminative features~\cite{wang2007shape,hamdoun2008person,zhao2013unsupervised}, learning feature transforms across camera views~\cite{prosser2010person,porikli2003inter,shen2015person}, and learning distance metrics~\cite{zheng2011person,gray2008viewpoint,prosser2010person,paisitkriangkrai2015learning,liao2015efficient}. Recent years, many researchers have proposed various deep learning based methods that jointly handle all these aspects. Li~\etal~\cite{li2014deepreid} and Ahmed~\etal~\cite{ahmed2015improved} designed specific CNN models for person re-id. Both the networks utilize as input a pair of cropped pedestrian images and employ a binary verification loss function to train the parameters. Ding~\etal~\cite{ding2015deep} and Cheng~\etal~\cite{cheng2016person} exploited triplet samples for training CNNs to minimize the feature distance between the same person and maximize the distance between different people. Apart from using pairwise or triplet loss functions, Xiao~\etal~\cite{xiao2016learning} proposed to learn features by classifying identities. Multiple datasets are combined together and a domain guided dropout technique is proposed to improve the feature learning. Several recent works addressed on solving person re-id on abnormal images, such as low-resolution images~\cite{li2015multi}, or partially occluded images~\cite{zheng2015partial}.
 
 \begin{figure}[t]
 \begin{center}
@@ -27,53 +34,48 @@ Although numerous person re-id datasets and methods have been proposed, there is
 
 In 2014, Xu~\etal~\cite{xu2014person} made the first step towards closing this gap. They introduced the person search problem to the community, and proposed a sliding window searching strategy based on a combination of pedestrian detection and person matching scores. However, the performance is limited by the handcrafted features, and the sliding window framework is not scalable.
 
-In this paper, we propose a new deep learning framework for person search. Different from conventional approaches that break down the problem into two separate tasks---pedestrian detection and person re-identification, we jointly handle both aspects in a single Convolutional Neural Network (CNN). Our CNN consists of two parts, given a whole input gallery image, a pedestrian proposal net is used to produce bounding boxes of candidate people, which are fed into an identification net to extract features for comparing with the target person. The pedestrian proposal net and the identification net adapt with each other during the joint optimization. For example, the proposal net can focus more on the recall rather than the precision, as false alarms could be eliminated through the latter features matching process. Meanwhile, misalignments of proposals are also acceptable, as they can be further adjusted by the identification net. To improve the scalability of the whole system, inspired by recent advances in object detection~\cite{ren2015faster}, we encourage both parts to share underlying convolutional feature maps, which significantly accelerates the inference procedure.
-
-Traditional re-id feature learning mainly employs pairwise or triplet distance loss functions~\cite{li2014deepreid,ahmed2015improved,cheng2016person,ding2015deep}. However, they are not efficient as only several data samples are compared at each time, and there are $O(N^2)$ potential input combinations, where $N$ is the number of images. Different sampling strategies could significantly impact the convergence rate and quality, but finding efficient sampling strategies becomes much more difficult as $N$ increases. Another approach is learning to classify identities with the Softmax loss function~\cite{xiao2016learning}, which effectively compares all the samples at the same time. But as the number of classes increases, training the big Softmax classifier matrix becomes much slower or even cannot converge. In this paper, we propose a novel \textit{Online Instance Matching (OIM)} loss function to cope with the problems. We maintain a lookup table of features from all the labeled identities, and compare distances between mini-batch samples and all the registered entries. On the other hand, many unlabeled identities could appear in scene images, which can be served as negatives for labeled identities. We thus exploit a circular queue to store their features also for comparison. This is another advantage brought by the person search problem setting. The proposed parameter-free OIM loss converges much faster and better than the Softmax loss in our experiments.
-
-The contribution of our work is three-fold. First, we propose a new deep learning framework to search a target person from a gallery of whole scene images. Instead of simply combining the pedestrian detectors and person re-id methods, we jointly optimize both objectives in a single CNN and they better adapt with each other. Second, we propose an Online Instance Matching loss function to learn identification features more effectively, which enables our framework to be scalable to large datasets with numerous identities. Together with the fast inference speed, our framework is much closer to the real-world application requirements. At last, we collect and annotate a large-scale benchmark dataset for person search, covering hundreds of scenes from street and movie snapshots. The dataset contains $18,184$ images, $8,432$ identities, and $96,143$ pedestrian bounding boxes. We validate the effectiveness of our approach comparing against other baselines on this dataset. The dataset and code are made public to facilitate further research\footnote{\url{https://github.com/ShuangLI59/person_search}}.
-% section introduction (end)
-
-\section{Related Work} % (fold)
-\label{sec:ps-related-work}
-\textbf{Person re-identification.} Early person re-identification methods addressed the problem by manually designing discriminative features~\cite{wang2007shape,hamdoun2008person,zhao2013unsupervised}, learning feature transforms across camera views~\cite{prosser2010person,porikli2003inter,shen2015person}, and learning distance metrics~\cite{zheng2011person,gray2008viewpoint,prosser2010person,paisitkriangkrai2015learning,liao2015efficient}. Recent years, many researchers have proposed various deep learning based methods that jointly handle all these aspects. Li~\etal~\cite{li2014deepreid} and Ahmed~\etal~\cite{ahmed2015improved} designed specific CNN models for person re-id. Both the networks utilize as input a pair of cropped pedestrian images and employ a binary verification loss function to train the parameters. Ding~\etal~\cite{ding2015deep} and Cheng~\etal~\cite{cheng2016person} exploited triplet samples for training CNNs to minimize the feature distance between the same person and maximize the distance between different people. Apart from using pairwise or triplet loss functions, Xiao~\etal~\cite{xiao2016learning} proposed to learn features by classifying identities. Multiple datasets are combined together and a domain guided dropout technique is proposed to improve the feature learning. Several recent works addressed on solving person re-id on abnormal images, such as low-resolution images~\cite{li2015multi}, or partially occluded images~\cite{zheng2015partial}.
-
 Concurrent with our prior arXiv submission, Zheng~\etal~\cite{zheng2017person} also contributed a benchmark dataset for person search. They exploited separate detection and re-id methods with scores re-weighting to solve the problem, while in this work we propose a deep learning framework that jointly handles both aspects.
 
 \textbf{Pedestrian detection.} DPM~\cite{felzenszwalb2010object}, ACF~\cite{dollar2014fast}, and Checkerboards~\cite{zhang2015filtered} are the most commonly used off-the-shelf pedestrian detectors. They rely on hand-crafted features and linear classifiers to detect pedestrians. Recent years, CNN-based pedestrian detectors have also been developed~\cite{yang2015convolutional,zhang2016faster}. Various factors, including CNN model structures, training data, and different training strategies are studied empirically in~\cite{hosang2015taking}. Tian~\etal~\cite{tian2015pedestrian} exploited pedestrian and scene attribute labels to train CNN pedestrian detectors in a multi-task manner. Cai~\etal~\cite{cai2015learning} proposed a complexity-aware boosting algorithm for learning CNN detector cascades.
 % section related_work (end)
 
-\begin{figure*}[t]
+
+\section{Method Overview} % (fold)
+\label{sec:ps-overview}
+In this chapter, we propose a new deep learning framework for person search. Different from conventional approaches that break down the problem into two separate tasks --- pedestrian detection and person re-identification, we jointly handle both aspects in a single CNN. Our CNN consists of two parts, given a whole input gallery image, a pedestrian proposal net is used to produce bounding boxes of candidate people, which are fed into an identification net to extract features for comparing with the target person. The pedestrian proposal net and the identification net adapt with each other during the joint optimization. For example, the proposal net can focus more on the recall rather than the precision, as false alarms could be eliminated through the latter features matching process. Meanwhile, misalignments of proposals are also acceptable, as they can be further adjusted by the identification net. To improve the scalability of the whole system, inspired by recent advances in object detection~\cite{ren2015faster}, we encourage both parts to share underlying convolutional feature maps, which significantly accelerates the inference procedure.
+
+Traditional re-id feature learning mainly employs pairwise or triplet distance loss functions~\cite{li2014deepreid,ahmed2015improved,cheng2016person,ding2015deep}. However, they are not efficient as only several data samples are compared at each time, and there are $O(N^2)$ potential input combinations, where $N$ is the number of images. Different sampling strategies could significantly impact the convergence rate and quality, but finding efficient sampling strategies becomes much more difficult as $N$ increases. Another approach is learning to classify identities with the Softmax loss function~\cite{xiao2016learning}, which effectively compares all the samples at the same time. But as the number of classes increases, training the big Softmax classifier matrix becomes much slower or even cannot converge. In this chapter, we propose a novel \textit{Online Instance Matching (OIM)} loss function to cope with the problems. We maintain a lookup table of features from all the labeled identities, and compare distances between mini-batch samples and all the registered entries. On the other hand, many unlabeled identities could appear in scene images, which can be served as negatives for labeled identities. We thus exploit a circular queue to store their features also for comparison. This is another advantage brought by the person search problem setting. The proposed parameter-free OIM loss converges much faster and better than the Softmax loss in our experiments.
+% section overview (end)
+
+\section{Network Architecture} % (fold)
+\label{sec:ps-model}
+\begin{figure}[t]
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/framework.pdf}
 \end{center}
 \caption{Our proposed framework. Pedestrian proposal net generates bounding boxes of candidate people, which are fed into an identification net for feature extraction. We project the features to a L2-normalized $256$-d subspace, and train it with a proposed Online Instance Matching loss. Both the pedestrian proposal net and the identification net share the underlying convolutional feature maps.}
 \label{fig:ps-framework}
-\end{figure*}
-\section{Method} % (fold)
-\label{sec:ps-method}
+\end{figure}
 
 We propose a new deep learning framework that jointly handles the pedestrian detection and person re-identification in a single convolutional neural network (CNN), as shown in Figure~\ref{fig:ps-framework}. Given as input a whole scene image, we first use a stem CNN to transform from raw pixels to convolutional feature maps. A pedestrian proposal net is built upon these feature maps to predict bounding boxes of candidate people, which are then fed into an identification net with RoI-Pooling~\cite{girshick2015fast} to extract L2-normalized $256$-d features for each of them. At inference stage, we rank the gallery people according to their feature distances to the target person. At training stage, we propose an \textit{Online Instance Matching} (OIM) loss function on top of the feature vectors to supervise the identification net, together with several other loss functions for training the proposal net in a multi-task manner. Below we will first detail the CNN model structure, and then elaborate on the OIM loss function.
 
-\subsection{Model Structure} % (fold)
-\label{sub:ps-model-structure}
 We adopt the ResNet-50~\cite{he2015deep} as our base CNN model. It has a $7\times 7$ convolution layer in front (named conv1), followed by four blocks (named conv2\_x to conv5\_x) each containing $3, 4, 6, 3$ residual units, respectively. We exploit conv1 to conv4\_3 as the stem part. Given an input image, the stem will produce $1024$ channels of features maps, which have $1/16$ resolutions of the original image.
 
 On top of these feature maps, we build a pedestrian proposal network to detect person candidates. A $512\times3\times3$ convolutional layer is first added to transform the features specifically for pedestrians. Then we follow~\cite{ren2015faster} to associate $9$ anchors at each feature map location, and use a Softmax classifier to predict whether each anchor is a pedestrian or not, as well as a linear regression to adjust their locations. We will keep the top $128$ adjusted bounding boxes after non-maximum suppression as our final proposals.
 
 To find the target person among all these proposals, we build an identification net to extract the features of each proposal, and compare against the target ones. We first exploit an RoI-Pooling layer~\cite{girshick2015fast} to pool a $1024\times 14\times 14$ region from the stem feature maps for each proposal. Then they are passed through the rest conv4\_4 to conv5\_3 of the ResNet-50, followed by a global average pooling layer to summarize into a $2048$ dimensional feature vector. On one hand, as the pedestrian proposals would inevitably contain some false alarms and misalignments, we use again a Softmax classifier and a linear regression to reject non-persons and refine the locations. On the other hand, we project the features into a L2-normalized $256$ dimensional subspace (id-feat), and use them to compute cosine similarities with the target person when doing inference. During the training stage, we supervise the id-feat with the proposed OIM loss function. Together with other loss functions for detection, the whole net is jointly trained in a multi-task learning manner, rather than using the alternative optimizations in~\cite{ren2015faster}.
-% subsection model_structure (end)
+% section ps-model (end)
 
-\subsection{Online Instance Matching Loss} % (fold)
-\label{sub:ps-oim-loss}
 
-\begin{figure*}[t]
+\section{Online Instance Matching Loss} % (fold)
+\label{sec:ps-oim-loss}
+\begin{figure}[t]
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/oim.pdf}
 \end{center}
 \caption{Online Instance Matching. The left part shows the labeled (blue) and unlabeled (orange) identity proposals in an image. We maintain a lookup table (LUT) and a circular queue (CQ) to store the features. When forward, each labeled identity is matched with all the stored features. When backward, we update LUT according to the id, pushing new features to CQ, and pop out-of-date ones. Note that both data structures are external buffer, rather than the parameters of the CNN.}
 \label{fig:ps-oim}
-\end{figure*}
+\end{figure}
 
 There are three different types of proposals, labeled identities, unlabeled identities, and background clutter. Suppose there are $L$ different target people in the training set, when a proposal matches a target person, we call it an instance of the labeled identity, and assign a class-id (from $1$ to $L$) to it accordingly. There are also lots of proposals predicting pedestrians correctly, but do not belong to anyone of our target people. We call them unlabeled identities in such cases. We demonstrate some examples of labeled and unlabeled identities in Figure~\ref{fig:ps-oim} with blue and orange bounding boxes, respectively. Other proposals are just false alarms on other objects or background regions. In the proposed loss function, we only consider the labeled and unlabeled identities, while leave the other proposals untouched.
 
@@ -105,9 +107,8 @@ It can be seen that our OIM loss effectively compares the mini-batch sample with
 Although our OIM loss formulation is similar to the Softmax one, the major difference is that the OIM loss is non-parametric. The LUT and circular queue are considered as external buffer, rather than the network parameters. The gradients directly operate on the features without the transformation by a classifier matrix. The potential drawback of this non-parametric loss is that it could overfit more easily. We find that projecting the features into a L2-normalized low-dimensional subspace helps reduce overfitting.
 
 \textbf{Scalability.} Computing the partition function in Eq~\eqref{eq:ps-pi} and Eq~\eqref{eq:ps-qi} could be time consuming when the number of identities increases. To overcome this problem, we can approximate the denominators by sub-sampling the labeled and unlabeled identities, which results in optimizing a lower-bound of Eq~\eqref{eq:ps-loglik}.
-% subsection online_instance_matching_loss (end)
+% section ps-oim-loss (end)
 
-% section method (end)
 
 \section{Dataset} % (fold)
 \label{sec:ps-dataset}
@@ -148,13 +149,14 @@ Overall & 18,184 & 96,143 & 8,432 \\
 
 \subsection{Evaluation Protocols and Metrics} % (fold)
 \label{sub:ps-evaluation-protocols-and-metrics}
-We split the dataset into a training and a test subset, ensuring no overlapped images or labeled identities between them. Table~\ref{tab:ps-dataset-stats} shows the statistics of these two subsets. We divide the test identity instances into queries and galleries. For each of the $2,900$ test identities, we randomly choose one of his/her instances as the query, while the corresponding gallery set consists of two parts---all the images containing the other instances and some randomly sampled images not containing this person. Different queries have different galleries, and jointly they cover all the $6,978$ test images.
+We split the dataset into a training and a test subset, ensuring no overlapped images or labeled identities between them. Table~\ref{tab:ps-dataset-stats} shows the statistics of these two subsets. We divide the test identity instances into queries and galleries. For each of the $2,900$ test identities, we randomly choose one of his/her instances as the query, while the corresponding gallery set consists of two parts --- all the images containing the other instances and some randomly sampled images not containing this person. Different queries have different galleries, and jointly they cover all the $6,978$ test images.
 
 To better understand how gallery size would affect the person search performance, we define a set of protocols with gallery size ranging from $50$ to $4000$. Taking gallery size of $100$ as an example, as each image approximately contains $6$ pedestrians, then our task is to find the target person among about $600$ people. This setting is comparable with existing person re-id datasets (\eg, CUHK-03, VIPeR) in terms of the number of gallery pedestrians, and is even more challenging as there could be thousands of background clutter bounding boxes distracting our attentions.
 
-We employ two kinds of evaluation metrics---cumulative matching characteristics (CMC top-K) and mean averaged precision (mAP). The first one is inherited from the person re-id problem, where a matching is counted if there is at least one of the top-K predicted bounding boxes overlaps with the ground truths with intersection-over-union (IoU) greater or equal to $0.5$. The second one is inspired from the object detection tasks. We follow the ILSVRC object detection criterion~\cite{russakovsky2014imagenet} to judge the correctness of predicted bounding boxes. An averaged precision (AP) is calculated for each query based on the precision-recall curve, and then we average the APs across all the queries to get the final result.
+We employ two kinds of evaluation metrics --- cumulative matching characteristics (CMC top-K) and mean averaged precision (mAP). The first one is inherited from the person re-id problem, where a matching is counted if there is at least one of the top-K predicted bounding boxes overlaps with the ground truths with intersection-over-union (IoU) greater or equal to $0.5$. The second one is inspired from the object detection tasks. We follow the ILSVRC object detection criterion~\cite{russakovsky2014imagenet} to judge the correctness of predicted bounding boxes. An averaged precision (AP) is calculated for each query based on the precision-recall curve, and then we average the APs across all the queries to get the final result.
 % subsection evaluation_protocols_and_metrics (end)
 % section dataset (end)
+
 
 \section{Experiments} % (fold)
 \label{sec:ps-experiments}
@@ -164,7 +166,7 @@ To evaluate the effectiveness of our approach and study the impact of various fa
 \label{sub:ps-experiment-settings}
 We implement our framework based on Caffe~\cite{jia2014caffe,wang2016temporal} and py-faster-rcnn~\cite{girshick2015fast,ren2015faster}. ImageNet-pretrained ResNet-50~\cite{he2015deep} are exploited for parameters initialization. We fix the first $7\times 7$ convolution layer and the batch normalization (BN) layers as constant affine transformations in the stem part, while keep the other BN layers as normal in the identification part. The temperature scalar $\tau$ in Eq.~\eqref{eq:ps-pi} and Eq.~\eqref{eq:ps-qi} is set to $0.1$, the size of the circular queue is set to $5,000$. All the losses have the same loss weight. Each mini-batch consists of two scene images. The learning rate is initialized to $0.001$, dropped to $0.0001$ after $40$K iterations, and kept unchanged until the model converges at $50$K iterations.
 
-We compare our framework with conventional methods that break down the problem into two separate tasks---pedestrian detection and person re-identification. Three pedestrian detection and five person re-id methods are used in our experiments, resulting in $15$ baseline combinations. For pedestrian detection, we directly use the off-the-shelf deep learning CCF~\cite{yang2015convolutional} detector, as well as two other detectors specifically fine-tuned on our dataset. One is the ACF~\cite{dollar2014fast}, and the other is Faster-RCNN (CNN)~\cite{ren2015faster} with ResNet-50, which is equivalent to our framework but without the identification task. The recall-precision curve of each detector on our dataset are plotted in Figure~\ref{fig:ps-detector-pr-curves}. We also use the ground truth (GT) bounding boxes as the results of a perfect detector.
+We compare our framework with conventional methods that break down the problem into two separate tasks --- pedestrian detection and person re-identification. Three pedestrian detection and five person re-id methods are used in our experiments, resulting in $15$ baseline combinations. For pedestrian detection, we directly use the off-the-shelf deep learning CCF~\cite{yang2015convolutional} detector, as well as two other detectors specifically fine-tuned on our dataset. One is the ACF~\cite{dollar2014fast}, and the other is Faster-RCNN (CNN)~\cite{ren2015faster} with ResNet-50, which is equivalent to our framework but without the identification task. The recall-precision curve of each detector on our dataset are plotted in Figure~\ref{fig:ps-detector-pr-curves}. We also use the ground truth (GT) bounding boxes as the results of a perfect detector.
 \begin{figure}[t]
 \begin{center}
 \includegraphics[width=1.0\linewidth]{figures/person_search/detector-pr-curves.pdf}
@@ -181,7 +183,6 @@ The following results are reported using the protocol with gallery size equal to
 \subsection{Comparison with Detection and Re-ID} % (fold)
 \label{sub:ps-comparison-with-detection-and-re-id}
 We first compare our proposed person search framework (with or without using unlabeled identities) with other $15$ baseline combinations that break down the problem into separate detection and re-identification tasks. The results are summarized in Table~\ref{tab:ps-results}. Our method outperforms the others by large margin. Comparing with CNN+IDNet, the gain comes from the joint optimization of the detection and identification parts, as well as the effective use of unlabeled identities in the OIM loss.
-
 
 \setlength{\tabcolsep}{8pt}
 \begin{table}
@@ -235,7 +236,7 @@ Another interesting phenomenon is that although IDNet and LOMO+XQDA have similar
 \caption{Comparisons between using the proposed Online Instance Matching (OIM) and Softmax loss (with and without pretraining the Softmax classifier) in our framework. The final accuracies and mAPs are shown in the legends.}
 \label{fig:ps-oim-vs-softmax}
 \end{figure}
-We validate the effectiveness of the proposed Online Instance Matching (OIM) loss by comparing it against Softmax baselines with or without pretraining the classifier matrix. The training identification accuracy and test person search mAP curves are demonstrated in Figure~\ref{fig:ps-oim-vs-softmax}. First, we can see that using Softmax loss without pretraining classifier remains at low accuracy during the whole process. This phenomenon verifies our analysis in Section~\ref{sub:ps-oim-loss} that learning a large classifier matrix is difficult. Even with proper pretraining, the training accuracy still improves slowly, and the test mAP keeps at around $60\%$.
+We validate the effectiveness of the proposed Online Instance Matching (OIM) loss by comparing it against Softmax baselines with or without pretraining the classifier matrix. The training identification accuracy and test person search mAP curves are demonstrated in Figure~\ref{fig:ps-oim-vs-softmax}. First, we can see that using Softmax loss without pretraining classifier remains at low accuracy during the whole process. This phenomenon verifies our analysis in Section~\ref{sec:ps-oim-loss} that learning a large classifier matrix is difficult. Even with proper pretraining, the training accuracy still improves slowly, and the test mAP keeps at around $60\%$.
 
 On the contrary, the proposed OIM loss starts with a low training accuracy but converges much faster and also consistently improves the test performance. The parameter-free OIM loss learns features directly without needing to learn a big classifier matrix. Moreover, the mismatch between training and test criterion no longer exists, as both are computed based on the inner product of L2-normalized feature vectors, which represents the cosine similarity.
 
@@ -261,7 +262,7 @@ ResNet-50 & OIM & \textbf{77.5} & \textbf{82.1} & \textbf{68.1} \\
 \end{table}
 \setlength{\tabcolsep}{6pt}
 
-\begin{figure*}[t]
+\begin{figure}[t]
 \begin{center}
 \begin{subfigure}[t]{0.6\linewidth}
   \includegraphics[width=\linewidth]{figures/person_search/subsampling.pdf}
@@ -280,8 +281,8 @@ ResNet-50 & OIM & \textbf{77.5} & \textbf{82.1} & \textbf{68.1} \\
 \end{subfigure}
 \end{center}
 \caption{Test mAP curves of different factors. The final mAPs are shown in the legend if applicable.}
-\end{figure*}
-\textbf{Sub-sampling the identities.} As the number of identities increases, the computation time of the OIM loss could become the bottleneck of the whole system. Thus we proposed in Section~\ref{sub:ps-oim-loss} to approximate Eq.~\eqref{eq:ps-pi} and Eq.~\eqref{eq:ps-qi} by sub-sampling both the labeled and unlabeled identities in the denominators. We validate this approach here by training the framework with sub-sampling size of $10$, $100$, and $1000$. The test mAP curves are demonstrated in Figure~\ref{fig:ps-subsampling}. In general, sub-sampling a small number of identities relaxes the training objective, which leads to slightly inferior performance but much faster convergence rate. This indicates that our framework is scalable to larger datasets with even more identities by using proper sub-sampling rate.
+\end{figure}
+\textbf{Sub-sampling the identities.} As the number of identities increases, the computation time of the OIM loss could become the bottleneck of the whole system. Thus we proposed in Section~\ref{sec:ps-oim-loss} to approximate Eq.~\eqref{eq:ps-pi} and Eq.~\eqref{eq:ps-qi} by sub-sampling both the labeled and unlabeled identities in the denominators. We validate this approach here by training the framework with sub-sampling size of $10$, $100$, and $1000$. The test mAP curves are demonstrated in Figure~\ref{fig:ps-subsampling}. In general, sub-sampling a small number of identities relaxes the training objective, which leads to slightly inferior performance but much faster convergence rate. This indicates that our framework is scalable to larger datasets with even more identities by using proper sub-sampling rate.
 
 \setlength{\tabcolsep}{8pt}
 \begin{table}
@@ -310,6 +311,7 @@ mAP (\%) & 54.2 & 62.1 & 75.5 & 75.3 & \textbf{75.7} \\
 
 \textbf{Gallery size.} Person search could be more challenging as the gallery size increases. We evaluate several methods under different test gallery sizes from $50$ to full set of $6,978$ images, following the protocols defined in Section~\ref{sub:ps-evaluation-protocols-and-metrics}. The test mAPs are demonstrated in Figure~\ref{fig:ps-factor-gallery-size}. Note that for each test query, the corresponding gallery images are randomly sampled from the whole set. All test images are covered even with small gallery sizes. The performance gaps among different methods are reduced as the gallery size increases, indicating all the methods may suffer from some common hard samples, and we could further improve the performance with hard example minings.
 
-\section{Conclusion} % (fold)
-\label{sec:ps-conclusion}
-In this paper, we propose a new deep learning framework for person search. It jointly handles detection and identification in a single CNN. An Online Instance Matching loss function is proposed to train the network effectively. Its non-parametric nature enables faster yet better convergence, which is validated through series of experiments.
+
+\section{Conclusions} % (fold)
+\label{sec:ps-conclusions}
+In this chapter, we propose a new deep learning framework for person search. It jointly handles detection and identification in a single CNN. An Online Instance Matching loss function is proposed to train the network effectively. Its non-parametric nature enables faster yet better convergence, which is validated through series of experiments.
