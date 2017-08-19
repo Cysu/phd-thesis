@@ -106,7 +106,31 @@ It can be seen that our OIM loss effectively compares the mini-batch sample with
 
 Although our OIM loss formulation is similar to the Softmax one, the major difference is that the OIM loss is non-parametric. The LUT and circular queue are considered as external buffer, rather than the network parameters. The gradients directly operate on the features without the transformation by a classifier matrix. The potential drawback of this non-parametric loss is that it could overfit more easily. We find that projecting the features into a L2-normalized low-dimensional subspace helps reduce overfitting.
 
-\textbf{Scalability.} Computing the partition function in Eq~\eqref{eq:ps-pi} and Eq~\eqref{eq:ps-qi} could be time consuming when the number of identities increases. To overcome this problem, we can approximate the denominators by sub-sampling the labeled and unlabeled identities, which results in optimizing a lower-bound of Eq~\eqref{eq:ps-loglik}.
+{\color{red}\textbf{Scalability.} Computing the partition function in Eq~\eqref{eq:ps-pi} and Eq~\eqref{eq:ps-qi} could be time consuming when the number of identities increases. To overcome this problem, we can approximate the denominators by sub-sampling the labeled and unlabeled identities,
+\begin{equation} \label{eq:ps-pi-sub}
+p_i\approx\frac{\exp(v_i^Tx/\tau)}{\sum_{j\in\mathcal{I}_L}\exp(v_j^Tx/\tau)+\sum_{k\in\mathcal{I}_Q}\exp(u_k^Tx/\tau)},
+\end{equation}
+where the index sets $\mathcal{I}_L$ and $\mathcal{I}_Q$ are subsets of $\left\{1,2,\dots,L\right\}$ and $\left\{1,2,\dots,Q\right\}$, respectively. Similar sub-sampling can be applied to $q_i$ as well. Using these approximations indeed results in optimizing an upper-bound of the log-likelihood in Eq~\eqref{eq:ps-loglik}.
+
+\textbf{Relationship with Triplet loss.} Triplet loss~\cite{schroff2015facenet} is another commonly used loss function for learning feature embeddings. It samples a triplet of feature vectors $\left\{x,x^+,x^-\right\}$ at each time, where $x$ is the anchor person, $x^+$ is a positive instance with the same identity, and $x^-$ is a negative instance with different identities. The loss formulation is defined as
+\begin{equation} \label{eq:ps-triplet-loss}
+\mathcal{L}_{triplet}\left(x,x^+,x^-\right)=\max\left(0, ||x-x^+||_2^2 - ||x-x^-||_2^2 + m\right),
+\end{equation}
+where $m$ is a constant called \emph{margin}. The triplet loss aims at pushing the anchor towards the positive instance, while drawing it away from the negative instance, until their distances exceed a certain margin. If we derive the gradient, minimizing the triplet loss (suppose it is greater than zero) is essentially updating $x$ with
+\begin{equation} \label{eq:ps-triplet-loss-grad}
+x\gets x + 2(x^+-x^-),
+\end{equation}
+which is very similar to our loss function when only $x^+$ and $x^-$ are sub-sampled in Eq~\eqref{eq:ps-pi-sub}. In this case, the probability of $x$ belonging to the class of $x^+$ becomes
+\begin{equation} \label{eq:ps-p-pos}
+p^+=\frac{\exp(x^Tx^+/\tau)}{\exp(x^Tx^+/\tau)+\exp(x^Tx^-/\tau)}.
+\end{equation}
+Maximizing the log-likelihood $\log p^+$ updates $x$ with
+\begin{equation} \label{eq:ps-oim-loss-grad-two-samples}
+x\gets x + \frac{1-p^+}{\tau}(x^+-x^-).
+\end{equation}
+By comparing Eq~\eqref{eq:ps-triplet-loss-grad} and Eq~\eqref{eq:ps-oim-loss-grad-two-samples}, we can see that the only difference between triplet loss and sub-sampled OIM loss is that triplet loss has a constant weight for all the pairs of positive and negative samples. While the sub-sampled OIM loss weights them adaptively according to the current classification probability.
+
+Triplet loss compares the anchor with only two identity samples at each time, while our OIM loss (without sub-sampling) compares it against all the identity samples, which is arguably more effective for feature learning. Triplet loss is also very sensitive to the sampling strategy. In some preliminary experiments, we observe that OIM loss converges much faster and better than triplet loss on the training set, but could easily overfit on some small datasets. Their effects on large-scale datasets need to be further studied in the future.}
 % section ps-oim-loss (end)
 
 
