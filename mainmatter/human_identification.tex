@@ -60,13 +60,15 @@ Apart from the classical settings introduced above, researchers have recently ex
 \label{sec:human-id-tech-roadmap}
 After introducing the problem settings for human identification, this section develops a technical roadmap for solving the problem, which reviews some existing approaches and enlightens future research.
 
-Human identification should be addressed from three levels. At first, we only consider the information from a single image, and try to learn good features to represent the person's identity. Secondly, given two feature maps from a pair of images, we should develop methods to compare these two feature maps, and predict whether they belong to the same identity. At last, we could explore the structure of the whole gallery set, determining how the representations should be constructed for this set, and ranking the gallery samples according to the query sample. We elaborate on these three aspects below.
+Human identification should be addressed from three levels. At first, we only consider the information from a single image, and try to learn good features to represent the person's identity. Secondly, given two feature maps from a pair of images, we should develop methods to compare these two feature maps, and predict whether they belong to the same identity. At last, we could explore the structure of the whole gallery set, determining how the representations should be constructed for this set, and rank the gallery samples according to the query sample. We elaborate on these three aspects in Section~\ref{sub:human-id-feat-learn},~\ref{sub:human-id-feat-comp}, and~\ref{sub:human-id-structure-set}.
+
+By interlacing human identification with other research fields we could advance the problem beyond the traditional image-based setting. For example, we may use natural language descriptions for querying a person instead of using the photo. Moreover, we could synthesize training data by exploiting generative models and rendering 3D models, which leverages the need of constructing large-scale supervised datasets. We introduce some recent advances towards these directions in Section~\ref{sub:human-id-data-modalities} and~\ref{sub:human-id-generative-models}.
 
 \subsection{Identity Feature Learning} % (fold)
 \label{sub:human-id-feat-learn}
 The first fundamental question is how to learn discriminative feature representations for a single person image. Given an input image $x$, the objective is to learn a feature vector $f(x)$ such that the distance between the same identity $||f(x)-f(x^+)||_2$ (where $x$ and $x^+$ are images of the same identity) is small enough, while the distance among different people $||f(x)-f(x^-)||_2$ (where $x$ and $x^-$ are images of different people) is large enough.
 
-Researchers have proposed various loss functions to learn such features. For example, Sun \etal~\cite{sun2014deep1,sun2014deep2} proposed to train the neural network to classify the identities with softmax cross entropy loss introduced in Section~\ref{sec:dl-loss}. Although it is indeed a surrogate loss function for feature learning, it works reasonally well in practice. Later on triplet loss is proposed~\cite{taigman2014deepface} that learns the features directly for ranking rather than classification. And Parkhi \etal~\cite{parkhi2015deep} combined both loss functions together in a multi-staged training process.
+Researchers have proposed various loss functions to learn such features. For example, Sun \etal~\cite{sun2014deep1,sun2014deep2} proposed to train the neural network to classify the identities with softmax cross entropy loss introduced in Section~\ref{sec:dl-loss}. Although it is indeed a surrogate loss function for feature learning, it works reasonably well in practice. Later on triplet loss is proposed~\cite{taigman2014deepface} that learns the features directly for ranking rather than classification. And Parkhi \etal~\cite{parkhi2015deep} combined both loss functions together in a multi-staged training process.
 
 A disadvantage of triplet loss is that it can only compare one pair of samples at each time, which is inefficient and highly relies on good sampling strategies. Therefore, in Section~\ref{sec:ps-oim-loss} we proposed a novel loss function dubbed \emph{Online Instance Matching (OIM)} that compares the features among all identities at once. OIM loss absorbs the advantages from softmax and triplet loss but leaves their disadvantages behind. Several other recent work~\cite{wen2016discriminative,titsias2016one,snell2017prototypical} also explored similar ideas.
 % subsection human-id-feat-learn (end)
@@ -82,4 +84,26 @@ Comparing a pair of deep learning feature maps is nontrivial, since the feature 
 \label{sub:human-id-structure-set}
 The last question is how to rank a set of gallery images according to the query. Answering this question requires modeling the structure of the gallery feature set. For example, by observing many gallery photos one can understand what the \emph{salient} features are for distinguishing different people~\cite{zhao2013unsupervised,zhao2017person}. Several other work focused on the ranking algorithm itself. Zhong \etal~\cite{zhong2017re} proposed a re-ranking algorithm by exploiting the prior knowledge that each identity has at least two instances in gallery set. Liu \etal~\cite{liu2013pop} designed an algorithm cooperate with human labelers to refine a initial ranking result.
 % subsection human-id-structure-set (end)
+
+{\color{red}\subsection{Data Modalities} % (fold)
+\label{sub:human-id-data-modalities}
+\begin{figure}[t]
+\begin{center}
+\includegraphics[width=1.0\linewidth]{figures/text-based-reid.pdf}
+\caption{Human identification with natural language descriptions as query}
+\label{fig:human-id-text-based-reid}
+\end{center}
+\end{figure}
+In some real-world scenarios, we do not have photos for the query person, for example when catching a criminal, the police sometimes only have testimony from a witness, as demonstrated in Figure~\ref{fig:human-id-text-based-reid}. Studying different data modalities for human identification thus becomes very important for pushing it towards real applications. Li \etal~\cite{li2017person} introduced the person search problem with natural language description. They proposed a CNN-RNN architecture with attention mechanisms to solve the problem, and collected a dataset to validate their approach. It was further improved in~\cite{li2017identity} by exploiting the identity information to help feature learning.
+
+The relationship between image modality and language modality has been actively studied in recent years from different aspects, including image captioning~\cite{karpathy2015deep,xu2015show,vinyals2015show,johnson2016densecap}, visual question answering (VQA)~\cite{antol2015vqa,ren2015exploring,malinowski2015ask,johnson2016clevr}, and text-based image retrieval~\cite{reed2016learning}. For human-identification, one intriguing property of using language modality is that it enriches the information we have. Traditionally, we only know whether each pair of people matches or not. With natural language descriptions, we can further know why they match and what the evidences are. These additional information could make the learned deep neural networks more discriminative and generalize better.
+% subsection human-id-data-modalities (end)
+
+\subsection{Generative Models and Rendering 3D Models} % (fold)
+\label{sub:human-id-generative-models}
+Learning well-performed deep neural networks currently requires large-scale supervised datasets, but collecting the data could be tedious and time consuming. To cope with this problem, recent work~\cite{richter2016playing,chen2017photographic} exploited computer graphics technologies that render 3D models to high-quality life-like 2D images. They showed that combining small amount of real data and numerous synthetic data could significantly improve the performance of deep neural networks for scene parsing.
+
+One problem of using synthetic images is that when they are too different from real images, it could be meaningless to learn deep neural networks with them. To reduce the gap of the discrepancy between synthetic data and real data, Shrivastava \etal~\cite{shrivastava2017learning} exploit the \emph{Generative Adversarial Networks (GANs)} to transfer the synthetic images to real images. In the person re-identification literature, Zheng \etal~\cite{zheng2017unlabeled} use GAN to directly generate the person images, which serve as training data for training deep neural networks.}
+% subsection human-id-generative-models (end)
+
 % section human-id-tech-roadmap (end)
