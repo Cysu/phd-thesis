@@ -106,7 +106,7 @@ It can be seen that our OIM loss effectively compares the mini-batch sample with
 
 Although our OIM loss formulation is similar to the Softmax one, the major difference is that the OIM loss is non-parametric. The LUT and circular queue are considered as external buffer, rather than the network parameters. The gradients directly operate on the features without the transformation by a classifier matrix. The potential drawback of this non-parametric loss is that it could overfit more easily. We find that projecting the features into a L2-normalized low-dimensional subspace helps reduce overfitting.
 
-{\color{red}\textbf{Scalability.} Computing the partition function in Eq~\eqref{eq:ps-pi} and Eq~\eqref{eq:ps-qi} could be time consuming when the number of identities increases. To overcome this problem, we can approximate the denominators by sub-sampling the labeled and unlabeled identities,
+\textbf{Scalability.} Computing the partition function in Eq~\eqref{eq:ps-pi} and Eq~\eqref{eq:ps-qi} could be time consuming when the number of identities increases. To overcome this problem, we can approximate the denominators by sub-sampling the labeled and unlabeled identities,
 \begin{equation} \label{eq:ps-pi-sub}
 p_i\approx\frac{\exp(v_i^Tx/\tau)}{\sum_{j\in\mathcal{I}_L}\exp(v_j^Tx/\tau)+\sum_{k\in\mathcal{I}_Q}\exp(u_k^Tx/\tau)},
 \end{equation}
@@ -130,7 +130,7 @@ x\gets x + \frac{1-p^+}{\tau}(x^+-x^-).
 \end{equation}
 By comparing Eq~\eqref{eq:ps-triplet-loss-grad} and Eq~\eqref{eq:ps-oim-loss-grad-two-samples}, we can see that the only difference between triplet loss and sub-sampled OIM loss is that triplet loss has a constant weight for all the pairs of positive and negative samples. While the sub-sampled OIM loss weights them adaptively according to the current classification probability.
 
-Triplet loss compares the anchor with only two identity samples at each time, while our OIM loss (without sub-sampling) compares it against all the identity samples, which is arguably more effective for feature learning. Triplet loss is also very sensitive to the sampling strategy. In some preliminary experiments, we observe that OIM loss converges much faster and better than triplet loss on the training set, but could easily overfit on some small datasets. Their effects on large-scale datasets need to be further studied in the future.}
+Triplet loss compares the anchor with only two identity samples at each time, while our OIM loss (without sub-sampling) compares it against all the identity samples, which is arguably more effective for feature learning. Triplet loss is also very sensitive to the sampling strategy. In some preliminary experiments, we observe that OIM loss converges much faster and better than triplet loss on the training set, but could easily overfit on some small datasets. Their effects on large-scale datasets need to be further studied in the future.
 % section ps-oim-loss (end)
 
 

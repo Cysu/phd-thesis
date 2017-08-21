@@ -85,7 +85,7 @@ Comparing a pair of deep learning feature maps is nontrivial, since the feature 
 The last question is how to rank a set of gallery images according to the query. Answering this question requires modeling the structure of the gallery feature set. For example, by observing many gallery photos one can understand what the \emph{salient} features are for distinguishing different people~\cite{zhao2013unsupervised,zhao2017person}. Several other work focused on the ranking algorithm itself. Zhong \etal~\cite{zhong2017re} proposed a re-ranking algorithm by exploiting the prior knowledge that each identity has at least two instances in gallery set. Liu \etal~\cite{liu2013pop} designed an algorithm cooperate with human labelers to refine a initial ranking result.
 % subsection human-id-structure-set (end)
 
-{\color{red}\subsection{Data Modalities} % (fold)
+\subsection{Data Modalities} % (fold)
 \label{sub:human-id-data-modalities}
 \begin{figure}[t]
 \begin{center}
@@ -103,7 +103,7 @@ The relationship between image modality and language modality has been actively 
 \label{sub:human-id-generative-models}
 Learning well-performed deep neural networks currently requires large-scale supervised datasets, but collecting the data could be tedious and time consuming. To cope with this problem, recent work~\cite{richter2016playing,chen2017photographic} exploited computer graphics technologies that render 3D models to high-quality life-like 2D images. They showed that combining small amount of real data and numerous synthetic data could significantly improve the performance of deep neural networks for scene parsing.
 
-One problem of using synthetic images is that when they are too different from real images, it could be meaningless to learn deep neural networks with them. To reduce the gap of the discrepancy between synthetic data and real data, Shrivastava \etal~\cite{shrivastava2017learning} exploit the \emph{Generative Adversarial Networks (GANs)} to transfer the synthetic images to real images. In the person re-identification literature, Zheng \etal~\cite{zheng2017unlabeled} use GAN to directly generate the person images, which serve as training data for training deep neural networks.}
+One problem of using synthetic images is that when they are too different from real images, it could be meaningless to learn deep neural networks with them. To reduce the gap of the discrepancy between synthetic data and real data, Shrivastava \etal~\cite{shrivastava2017learning} exploit the \emph{Generative Adversarial Networks (GANs)} to transfer the synthetic images to real images. In the person re-identification literature, Zheng \etal~\cite{zheng2017unlabeled} use GAN to directly generate the person images, which serve as training data for training deep neural networks.
 % subsection human-id-generative-models (end)
 
 % section human-id-tech-roadmap (end)
